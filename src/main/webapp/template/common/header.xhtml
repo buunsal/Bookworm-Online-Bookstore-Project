@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:pe="http://primefaces.org/ui/extensions">
+<body>
+<ui:composition>
+
+    <style>
+        .ui-menuitem.ui-widget.ui-corner-all:last-child {
+            float: right;
+        }
+    </style>
+
+    <div class="ui-g ui-g-nopad" style="min-height: 10vh">
+
+        <div class="ui-g-1"></div>
+
+        <div class="ui-g-10">
+
+            <p:growl id="growll" showDetail="true" life="2000"/>
+
+            <div class="ui-g ui-g-nopad">
+
+                <div class="ui-g-4">
+
+                    <div class="ui-g" style="height: 100%;display: flex;align-items: center;">
+                        <h:link outcome="/index.xhtml">
+                            <p:graphicImage url="/images/logo.png"
+                                            style="position: relative;Width: 100%;text-align: center;"/>
+                        </h:link>
+                    </div>
+
+                </div>
+
+                <div class="ui-g-5 ui-g-nopad" style="text-align: center!important;">
+                    <div class="ui-g" style="height: 100%;display: flex;align-items: center;margin-left: 30px">
+                        <div class="ui-g-12">
+
+                            <h:form styleClass="ui-fluid">
+                                <div class="ui-inputgroup">
+                                    <p:messages id="msg"/>
+                                    <p:autoComplete id="autosearch"
+                                                    placeholder="&#xF002; Search for books by keyword / title / author / ISBN"
+                                                    minQueryLength="3" value="#{searchController.book}"
+                                                    var="book" itemValue="#{book}" itemLabel="#{book.searchString()}"
+                                                    completeMethod="#{searchController.completeBook}"
+                                                    converter="bookConverter"
+                                                    inputStyle="height: 3vw;font-family:FontAwesome;"
+                                                    effect="fade">
+                                        <p:ajax event="itemSelect" listener="#{searchController.onItemSelect}"
+                                                update="msg"/>
+                                    </p:autoComplete>
+                                </div>
+                            </h:form>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ui-g-3">
+
+                    <div class="ui-g" style="color: #007AD9!important;text-align: center!important;margin-top: 5%">
+                        <div class="ui-g-4">
+                        </div>
+                        <div class="ui-g-4">
+                            <p:column rendered="#{!sessionController.isLogged}">
+                                <i class="pi pi-user-plus" style="font-size: 3vw;"/>
+                            </p:column>
+
+                            <p:column rendered="#{sessionController.isLogged}">
+                                <i class="pi pi-user" style="font-size: 3vw;"/>
+                            </p:column>
+
+                            <div style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">
+                                <p:linkButton value="Sign Up"
+                                              outcome="registration.xhtml"
+                                              style="font-size: 0.8vw;"
+                                              rendered="#{!sessionController.isLogged}"/>
+                            </div>
+
+                            <p:column rendered="#{sessionController.getIsUser()}">
+                                <div style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">
+                                    <p:linkButton id="dynaButton" value="Account"
+                                                  style="font-size: 0.8vw;"/>
+                                </div>
+
+                                <h:form>
+                                    <p:menu overlay="true" trigger="dynaButton" my="left top" at="left bottom">
+
+                                        <p:menuitem value="My Orders" url="/customer/customerpage.xhtml"
+                                                    icon="pi pi-ticket"/>
+                                        <p:menuitem value="Edit Profile" url="/customer/editprofile.xhtml"
+                                                    icon="pi pi-user-edit"/>
+                                        <p:menuitem value="Change Password" url="/customer/changepassword.xhtml"
+                                                    icon="pi pi-refresh"/>
+
+                                    </p:menu>
+                                </h:form>
+                            </p:column>
+
+                            <p:column rendered="#{sessionController.getIsAdmin()}">
+                                <div style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">
+                                    <p:linkButton id="dynaButton2" value="Account"
+                                                  style="font-size: 0.8vw;"
+                                                  rendered="#{sessionController.isLogged}"/>
+                                </div>
+
+                                <h:form>
+                                    <p:menu overlay="true" trigger="dynaButton2" my="left top" at="left bottom">
+
+                                        <p:menuitem value="Admin Panel" url="/admin/adminpage.xhtml"
+                                                    icon="pi pi-ticket"/>
+                                        <p:menuitem value="Edit Profile" url="/admin/editprofile.xhtml"
+                                                    icon="pi pi-user-edit"/>
+                                        <p:menuitem value="Change Password" url="/admin/changepassword.xhtml"
+                                                    icon="pi pi-refresh"/>
+
+                                    </p:menu>
+                                </h:form>
+                            </p:column>
+
+                        </div>
+                        <div class="ui-g-4">
+                            <p:column rendered="#{!sessionController.isLogged}">
+                                <i class="pi pi-sign-in" style="font-size: 3vw;"/>
+                            </p:column>
+
+                            <p:column rendered="#{sessionController.isLogged}">
+                                <i class="pi pi-sign-out" style="font-size: 3vw;"/>
+                            </p:column>
+
+                            <div style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">
+                                <p:linkButton value="Sign In"
+                                              outcome="signin.xhtml"
+                                              style="font-size: 0.8vw;"
+                                              rendered="#{!sessionController.isLogged}"/>
+                            </div>
+
+                            <div style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">
+                                <p:linkButton value="Sign Out"
+                                              href="/j_spring_security_logout"
+                                              style="font-size: 0.8vw;"
+                                              rendered="#{sessionController.isLogged}"/>
+                            </div>
+                        </div>
+                        <div class="ui-g-1"></div>
+                    </div>
+
+                </div>
+                <div class="ui-g-12">
+                    <p:megaMenu id="menu" orientation="horizontal">
+                        <p:submenu label="Shop by category" icon="fa fa-bars">
+                            <p:column>
+                                <p:submenu label="Top Categories">
+                                    <c:forEach items="#{databaseController.topCategories}" var="category">
+                                        <p:menuitem value="#{category.name}" url="/category.xhtml?id=#{category.id}"
+                                                    rendered="#{category.topCategory}"/>
+                                    </c:forEach>
+                                </p:submenu>
+                            </p:column>
+
+                            <p:column>
+                                <p:submenu label="More Categories">
+                                    <c:forEach items="#{databaseController.moreCategories1}" var="category">
+                                        <p:menuitem value="#{category.name}" url="/category.xhtml?id=#{category.id}"/>
+                                    </c:forEach>
+                                </p:submenu>
+                            </p:column>
+
+                            <p:column>
+                                <p:submenu label="More Categories">
+                                    <c:forEach items="#{databaseController.moreCategories2}" var="category">
+                                        <p:menuitem value="#{category.name}" url="/category.xhtml?id=#{category.id}"/>
+                                    </c:forEach>
+                                </p:submenu>
+                            </p:column>
+
+                            <p:column>
+                                <p:submenu label="Top Authors">
+                                    <c:forEach items="#{databaseController.topAuthors}" var="author">
+                                        <p:menuitem value="#{author.name}" url="/author.xhtml?id=#{author.id}"/>
+                                    </c:forEach>
+                                </p:submenu>
+                            </p:column>
+
+                        </p:submenu>
+                        <p:menuitem value="Bestsellers" url="/bestsellerpage.xhtml" icon="fa fa-book"/>
+                        <p:menuitem value="New Releases" url="/newreleasespage.xhtml" icon="fa fa-fire"/>
+
+                        <p:menuitem id="cartMenu" value="Shopping Cart" url="#" icon="fa fa-cart-plus"
+                                    style="float:right"/>
+
+                    </p:megaMenu>
+
+                    <h:form id="cartForm">
+
+                        <p:growl id="growl" showDetail="true" life="2000"/>
+
+                        <pe:badge content="#{shoppingBasketController.basketCount}" for="cartMenu" color="#007AD9"
+                                  widgetVar="badgeNotifications"
+                                  rendered="#{shoppingBasketController.basketCount > 0}"/>
+
+                        <p:overlayPanel id="cartPanel" widgetVar="cartWidget" appendTo="@(body)" for="cartMenu"
+                                        showEffect="blind" hideEffect="blind" dismissable="true" dynamic="true">
+
+                            <p:panelGrid styleClass="ui-noborder">
+
+                                <c:forEach items="#{shoppingBasketController.cartList}" var="cart">
+                                    <p:panelGrid columns="2" styleClass="ui-noborder">
+                                        <p:column>
+                                            <h:link outcome="/viewbook.xhtml?isbn=#{cart.book.ISBN}">
+                                                <p:graphicImage url="#{cart.book.picture}"
+                                                                style="width: 6vw;height: 9vw;"/>
+                                            </h:link>
+                                        </p:column>
+
+                                        <p:panelGrid columns="2" columnClasses="label,value"
+                                                     styleClass="ui-noborder" style="text-align: left;">
+
+                                            <h:outputText value="Title:" style="font-weight: bold"/>
+                                            <h:outputText value="#{cart.book.title}"/>
+
+                                            <h:outputText value="Price:" style="font-weight: bold"/>
+                                            <h:outputText value="$#{cart.book.price}" rendered="#{cart.book.campaigns.size()==0}"/>
+
+                                            <h:outputText value="#{cart.book.price *
+                                            (100 - cart.book.campaigns.iterator().next().discount_amount) / 100
+                                            }" rendered="#{cart.book.campaigns.size()!=0}">
+                                                <f:convertNumber type="currency" locale="en_US"/>
+                                            </h:outputText>
+
+
+                                            <p:outputLabel for="@next" value="Quantity:" style="font-weight: bold"/>
+                                            <p:selectOneMenu value="#{cart.book_count}" id="quantityMenu">
+                                                <p:ajax listener="#{shoppingBasketController.newCount(cart)}"
+                                                        onstart="PF('blockUIWidget').block()"
+                                                        oncomplete="PF('blockUIWidget').unblock()"
+                                                        update=":cartForm"/>
+                                                <f:selectItem itemLabel="1" itemValue="1"/>
+                                                <f:selectItem itemLabel="2" itemValue="2"/>
+                                                <f:selectItem itemLabel="3" itemValue="3"/>
+                                                <f:selectItem itemLabel="4" itemValue="4"/>
+                                                <f:selectItem itemLabel="5" itemValue="5"/>
+                                                <f:selectItem itemLabel="6" itemValue="6"/>
+                                                <f:selectItem itemLabel="7" itemValue="7"/>
+                                                <f:selectItem itemLabel="8" itemValue="8"/>
+                                                <f:selectItem itemLabel="9" itemValue="9"/>
+                                                <f:selectItem itemLabel="10" itemValue="10"/>
+                                                <f:selectItem itemLabel="11" itemValue="11"/>
+                                                <f:selectItem itemLabel="12" itemValue="12"/>
+                                                <f:selectItem itemLabel="13" itemValue="13"/>
+                                                <f:selectItem itemLabel="14" itemValue="14"/>
+                                                <f:selectItem itemLabel="15" itemValue="15"/>
+                                                <f:selectItem itemLabel="16" itemValue="16"/>
+                                                <f:selectItem itemLabel="17" itemValue="17"/>
+                                                <f:selectItem itemLabel="18" itemValue="18"/>
+                                                <f:selectItem itemLabel="19" itemValue="19"/>
+                                                <f:selectItem itemLabel="20" itemValue="20"/>
+                                            </p:selectOneMenu>
+
+                                            <p:commandLink value="Remove"
+                                                           update=":cartForm"
+                                                           onstart="PF('blockUIWidget').block()"
+                                                           oncomplete="PF('blockUIWidget').unblock()"
+                                                           action="#{shoppingBasketController.remove(cart.book)}">
+                                                <p:ajax update=":cartForm"/>
+                                            </p:commandLink>
+
+                                        </p:panelGrid>
+
+                                    </p:panelGrid>
+
+                                    <p:separator/>
+
+                                </c:forEach>
+
+                                <p:row rendered="#{sessionController.isLogged and shoppingBasketController.basketCount > 0}">
+                                    <p:column>
+                                        <h:outputText id="total" value="#{shoppingBasketController.basketCost}"
+                                                      style="float: right!important;font-size: 1.5vw">
+                                            <f:convertNumber type="currency" locale="en_US"/>
+                                        </h:outputText>
+                                        <h:outputText value="Total: "
+                                                      style="font-weight: bold;float: right!important;font-size: 1.5vw"/>
+                                    </p:column>
+                                </p:row>
+                                <p:row rendered="#{sessionController.isLogged and shoppingBasketController.basketCount > 0}">
+                                    <p:column>
+                                        <p:spacer height="30"/>
+                                        <p:separator/>
+                                    </p:column>
+                                </p:row>
+                                <p:row rendered="#{sessionController.isLogged and shoppingBasketController.basketCount > 0}">
+                                    <p:column>
+                                        <p:outputPanel style="text-align:right;">
+                                            <p:linkButton value="Checkout" outcome="/customer/checkout.xhtml"
+                                                          style="width: 100%"/>
+                                        </p:outputPanel>
+                                    </p:column>
+                                </p:row>
+                                <p:row rendered="#{sessionController.isLogged and shoppingBasketController.basketCount == 0}">
+                                    <p:column>
+                                        <h:outputText value="Your cart is empty!"/>
+                                    </p:column>
+                                </p:row>
+                                <p:row rendered="#{!sessionController.isLogged}">
+                                    <p:column>
+                                        <h:outputText value="Please Sign-In for Shopping!"/>
+                                    </p:column>
+                                </p:row>
+                            </p:panelGrid>
+
+                        </p:overlayPanel>
+
+                        <pe:blockUI widgetVar="blockUIWidget" css="{backgroundColor: 'white'}"
+                                    cssOverlay="{opacity:0.5}" showOverlay="true">
+                            <p:outputPanel style="background-color: white">
+                                <h:panelGrid columns="2" styleClass="ql-color-white" style="background-color: white">
+                                    <h:graphicImage library="images" name="loader.gif"
+                                                    style="vertical-align: middle;"/>
+                                    <h:outputText value="Please wait..."
+                                                  style="white-space: nowrap;color: #007AD9;font-size: xx-large"/>
+                                </h:panelGrid>
+                            </p:outputPanel>
+                        </pe:blockUI>
+
+                    </h:form>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="ui-g-1"></div>
+
+    </div>
+
+</ui:composition>
+</body>
+</html>

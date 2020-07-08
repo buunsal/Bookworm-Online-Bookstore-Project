@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pe="http://primefaces.org/ui/extensions"
+      lang="en">
+<body>
+<ui:composition>
+
+    <div class="p-grid" style="position: page;bottom: 0;width: 100%;text-align: center;color: #E82D60;min-height: 10vh">
+        <div class="ui-g">
+
+            <div class="ui-g-12">
+                <br/>
+            </div>
+
+            <div class="ui-g-4">
+
+                <pe:social id="socialMedia"
+                           shares="twitter,facebook,whatsapp,email"
+                           url="http://bookworm-online-bookstore.herokuapp.com/"
+                           text="PrimeFaces"
+                           theme="classic"
+                           showLabel="false"
+                           showCount="false"
+                           style="font-size: 16px;"
+                           emailTo="bookworm@baam.com"
+                           twitterUsername="bookworm"
+                           twitterHashtags="bookworm,baam,bookwormonlinebookstore"
+                           onclick="console.log('share ' +this.share + ' url ' + this.url + ' at ' + e.timeStamp);"/>
+
+            </div>
+
+            <div class="ui-g-4">
+                <h3><strong>© BOOKWORM ONLINE BOOKSTORE 2020</strong></h3>
+            </div>
+
+            <div class="ui-g-4">
+
+                <pe:fab id="btnFab" icon="fa fa-question" iconActive="fa fa-times" style="background: #E82D60;">
+                    <pe:javascript event="open" execute="PF('overlayWidget').show('btnFab');"/>
+                    <pe:javascript event="close" execute="PF('overlayWidget').hide();"/>
+                </pe:fab>
+
+
+                <p:overlayPanel id="overlayPanel" widgetVar="overlayWidget" appendTo="@(body)" showEffect="drop"
+                                style="position: fixed"
+                                hideEffect="slide" dismissable="true" at="right top" dynamic="true" my="right top">
+                    <h:form id="feedbackForm">
+                        <p:panelGrid styleClass="ui-noborder">
+                            <p:row>
+                                <p:column styleClass="ui-widget-header">
+                                    <p:outputLabel for="txtMessage" value="Message"/>
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column>
+                                    <p:inputTextarea id="txtMessage" value="#{feedbackController.feedback.content}"
+                                                     rows="5" cols="43" autoResize="false"/>
+                                    <p:watermark for="txtMessage"
+                                                 value="Send us a message if you have something to say."/>
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column styleClass="ui-widget-header">
+                                    <p:outputLabel for="txtEmail" value="Email address (optional)"/>
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column>
+                                    <p:inputText id="txtEmail" size="40" value="#{feedbackController.feedback.email}"/>
+                                    <p:watermark for="txtEmail" value="Email address (optional)"/>
+
+                                </p:column>
+                                <p:column>
+                                    <p:message for="txtEmail"/>
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column style="font-style: italic;">
+                                    If you provide your email address above, then by submitting<br/>
+                                    this form you agree that we may contact you by email<br/>
+                                    to follow up on your feedback.<br/>
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column>
+                                    <p:outputPanel style="text-align:right;">
+                                        <p:commandButton action="#{feedbackController.newFeedback}" update="growll"
+                                                         value="Send"/>
+                                    </p:outputPanel>
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column>
+                                    <p:spacer height="50"/>
+                                </p:column>
+                            </p:row>
+                        </p:panelGrid>
+                    </h:form>
+                </p:overlayPanel>
+
+
+            </div>
+        </div>
+    </div>
+
+</ui:composition>
+</body>
+</html>

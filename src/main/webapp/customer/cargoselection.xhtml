@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pe="http://primefaces.org/ui/extensions"
+      lang="en">
+<f:view contentType="text/html" locale="en">
+    <pe:head title="Bookworm Online Bookstore">
+        <f:facet name="first">
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        </f:facet>
+        <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/META-INF/resources/css/main.css"/>
+        <h:outputStylesheet name="primeicons/primeicons.css" library="primefaces"/>
+        <style>
+            body {
+                background-image: url("#{resource['images/background.jpg']}") !important;
+                background-size: cover;
+                background-attachment: fixed;
+                background-position: center center;
+            }
+
+            .cargo {
+                width: 15%;
+            }
+
+            .price {
+                width: 55%;
+                padding-left: 25px;
+            }
+
+            .op {
+                text-align: right;
+                width: 20%;
+                padding-left: 25px;
+            }
+
+            body .ui-steps .ui-steps-item {
+                width: 25%;
+            }
+
+            body .ui-state-highlight {
+                text-shadow: none !important;
+            }
+
+            body .ui-steps.custom {
+                margin-bottom: 30px;
+            }
+
+            body .ui-steps.custom .ui-steps-item .ui-menuitem-link {
+                height: 10px;
+                padding: 0 1em;
+                overflow: visible;
+                border: 1px solid #c8c8c8;
+                display: block;
+                background-color: #FFFFFF;
+            }
+
+            body .ui-steps.custom .ui-steps-item .ui-menuitem-link .ui-steps-number {
+                background-color: #0081c2;
+                color: #FFFFFF;
+                display: inline-block;
+                width: 30px;
+                border-radius: 10px;
+                margin-top: -10px;
+                margin-bottom: 10px;
+                position: relative;
+                top: -3px;
+            }
+
+            body .ui-steps.custom .ui-steps-item .ui-menuitem-link .ui-steps-title {
+                margin-top: -6px;
+            }
+
+            body .ui-steps.custom .ui-steps-item.ui-state-highlight .ui-menuitem-link .ui-steps-title {
+                color: #555;
+            }
+        </style>
+    </pe:head>
+    <h:body>
+        <p:outputPanel>
+            <ui:insert name="header">
+                <ui:include src="/template/common/header.xhtml"/>
+            </ui:insert>
+
+            <div class="ui-g" style="min-height: 65vh">
+                <div class="ui-g-2"></div>
+                <div class="ui-g-8" style="background-color: white">
+
+                    <p:outputPanel>
+
+                        <h:form id="cargoForm">
+
+                            <p:steps activeIndex="1" readonly="false">
+                                <p:menuitem value="Your Cart" url="/customer/checkout.xhtml"/>
+                                <p:menuitem value="Cargo Selection" url="/customer/cargoselection.xhtml"/>
+                                <p:menuitem value="Payment" url="/customer/payment.xhtml"/>
+                                <p:menuitem value="Confirmation" url="/customer/confirmation.xhtml"/>
+                            </p:steps>
+
+                            <p:dataView value="#{cargoController.cargos}" var="cargo">
+                                <f:facet name="header">
+                                    <h:outputText value="SELECT CARGO" style="font-size: 2em;font-weight: bold"/>
+                                </f:facet>
+
+                                <p:dataViewListItem>
+                                    <p:panelGrid columns="2" style="width: 100%" styleClass="ui-noborder">
+
+                                        <h:outputText value="#{cargo.name}"
+                                                      style="font-size: 2em;font-weight: bold;color: black"/>
+
+                                        <br/>
+
+                                        <p:panelGrid columns="2" cellpadding="5" styleClass="ui-noborder"
+                                                     style="text-align: left;">
+
+                                            <p:outputLabel for="@next" value="Cost: "
+                                                           style="font-size: 2em;font-weight: bold;color: black"/>
+
+                                            <p:column rendered="#{shoppingBasketController.freeShipping}">
+                                                <h:outputText value="FREE"
+                                                              style="font-size: 2em;font-weight: bold;color: #E82D60"/>
+                                            </p:column>
+
+                                            <p:column rendered="#{!shoppingBasketController.freeShipping}">
+                                                <h:outputText value="#{cargo.shippingCost + shoppingBasketController.getBasketCount()}"
+                                                              style="font-size: 2em;font-weight: bold;color: black">
+                                                    <f:convertNumber type="currency" locale="en_US"/>
+                                                </h:outputText>
+                                            </p:column>
+
+                                        </p:panelGrid>
+
+                                        <p:panelGrid columns="1" cellpadding="5" styleClass="ui-noborder" style="float: right">
+
+                                            <p:commandLink value="Select"
+                                                           update=":cartForm :cargoForm"
+                                                           style="font-size: 1.5em;float: right"
+                                                           action="#{checkOutController.selectCargo(cargo)}"
+                                                           rendered="#{checkOutController.selectedCargo != cargo}">
+                                                <p:ajax update=":cartForm"/>
+                                            </p:commandLink>
+
+                                            <p:commandLink id="selected"
+                                                           disabled="true"
+                                                           value="Selected"
+                                                           rendered="#{checkOutController.selectedCargo == cargo}"
+                                                           style="font-size: 1.5em;float: right">
+                                            </p:commandLink>
+
+                                        </p:panelGrid>
+
+
+                                    </p:panelGrid>
+
+                                    <p:separator/>
+
+                                </p:dataViewListItem>
+
+                            </p:dataView>
+
+                            <div class="ui-g-offset-8 ui-g-2">
+                                <h:outputText value="Delivery Cost: " style="font-size: 1.5em;font-weight: bold;"/>
+                            </div>
+
+                            <div class="ui-g-2">
+                                <p:column rendered="#{shoppingBasketController.freeShipping}">
+                                    <h:outputText value="FREE" style="font-size: 1.5em;font-weight: bold;color: #E82D60;"/>
+                                </p:column>
+
+                                <p:column rendered="#{!shoppingBasketController.freeShipping and checkOutController.selectedCargo.name == null}">
+                                    <h:outputText value="-" style="font-size: 1.5em;font-weight: bold;"/>
+                                </p:column>
+
+                                <p:column rendered="#{!shoppingBasketController.freeShipping and checkOutController.selectedCargo.name != null}">
+                                    <h:outputText value="#{checkOutController.selectedCargo.shippingCost + shoppingBasketController.getBasketCount()}"
+                                                  style="font-weight: bold;color: #E82D60;font-size: 1.5em">
+                                        <f:convertNumber type="currency" locale="en_US"/>
+                                    </h:outputText>
+                                </p:column>
+                            </div>
+
+                            <div class="ui-g-offset-8 ui-g-2">
+                                <h:outputText value="Total: " style="font-weight: bold;font-size: 2em"/>
+                            </div>
+
+                            <div class="ui-g-2">
+                                <h:outputText value="#{checkOutController.totalCost}"
+                                              style="font-weight: bold;color: #E82D60;font-size: 2em">
+                                    <f:convertNumber type="currency" locale="en_US"/>
+                                </h:outputText>
+                            </div>
+
+                            <div class="ui-g-8">
+                                <p:graphicImage url="/images/payment.png" style="width: 50%"/>
+                            </div>
+
+                            <div class="ui-g-offset-1 ui-g-2 ui-g-offset-1">
+                                <p:column rendered="#{shoppingBasketController.freeShipping and checkOutController.selectedCargo.name != null}">
+                                    <p:linkButton value="Payment"
+                                                  href="/customer/payment.xhtml"
+                                                  style="font-size: 2vh;width: 100%"/>
+                                </p:column>
+
+                                <p:column rendered="#{shoppingBasketController.freeShipping and checkOutController.selectedCargo.name == null}">
+                                    <p:linkButton value="Payment"
+                                                  href="/customer/payment.xhtml"
+                                                  disabled="true"
+                                                  style="font-size: 2vh;width: 100%"/>
+                                </p:column>
+
+                                <p:column rendered="#{!shoppingBasketController.freeShipping and checkOutController.selectedCargo.name == null}">
+                                    <p:linkButton value="Payment"
+                                                  href="/customer/payment.xhtml"
+                                                  disabled="true"
+                                                  style="font-size: 2vh;width: 100%"/>
+                                </p:column>
+
+                                <p:column rendered="#{!shoppingBasketController.freeShipping and checkOutController.selectedCargo.name != null}">
+                                    <p:linkButton value="Payment"
+                                                  href="/customer/payment.xhtml"
+                                                  style="font-size: 2vh;width: 100%"/>
+                                </p:column>
+                            </div>
+
+                        </h:form>
+                    </p:outputPanel>
+
+                </div>
+                <div class="ui-g-2"></div>
+            </div>
+
+            <ui:insert name="footer">
+                <ui:include src="/template/common/footer.xhtml"/>
+            </ui:insert>
+        </p:outputPanel>
+    </h:body>
+</f:view>
+</html>

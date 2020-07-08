@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+<body>
+<ui:composition>
+
+    <div class="ui-g ui-g-nopad" style="min-height: 20vh">
+
+        <div class="ui-g-1"></div>
+
+        <div class="ui-g-10">
+
+            <div class="ui-g">
+
+                <div class="ui-g-4 ui-g-nopad">
+
+                    <h:link outcome="/index.xhtml">
+                        <p:graphicImage url="/images/logo.png"
+                                        style="position: relative;Width: 100%;text-align: center;"/>
+                    </h:link>
+
+                </div>
+
+                <div class="ui-g-5">
+                    <h:link outcome="/admin/adminpage.xhtml">
+                        <h1 style="text-align:center;color: #007AD9;margin-top: 10%">ADMIN PANEL</h1>
+                    </h:link>
+                </div>
+
+                <div class="ui-g-3">
+                    <div class="ui-g" style="color: #007AD9!important;text-align: center!important;margin-top: 5%">
+                        <div class="ui-g-4"></div>
+                        <div class="ui-g-4">
+                            <i class="pi pi-user" style="font-size: 3vw;"/>
+
+                            <div style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">
+                                <p:linkButton id="dynaButton" value="Account"
+                                              style="font-size: 0.8vw;"
+                                              rendered="#{sessionController.isLogged}"/>
+                            </div>
+
+                            <h:form>
+                                <p:menu overlay="true" trigger="dynaButton" my="left top" at="left bottom">
+
+                                    <p:menuitem value="Admin Panel" url="/admin/adminpage.xhtml"
+                                                icon="pi pi-ticket"/>
+                                    <p:menuitem value="Edit Profile" url="/admin/editprofile.xhtml"
+                                                icon="pi pi-user-edit"/>
+                                    <p:menuitem value="Change Password" url="/admin/changepassword.xhtml"
+                                                icon="pi pi-refresh"/>
+
+                                </p:menu>
+                            </h:form>
+                        </div>
+                        <div class="ui-g-4">
+                            <i class="pi pi-sign-out" style="font-size: 3vw;"/>
+
+                            <div style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">
+                                <p:linkButton value="Sign-Out"
+                                              href="/j_spring_security_logout"
+                                              style="font-size: 0.8vw;"/>
+                            </div>
+
+                        </div>
+                        <div class="ui-g-1"></div>
+                    </div>
+
+                </div>
+
+                <div class="ui-g-12">
+                    <p:megaMenu orientation="horizontal">
+                        <p:menuitem value="User Management" url="/admin/usermanagement.xhtml" icon="fa fa-user"/>
+                        <p:menuitem value="Book Management" url="/admin/bookmanagement.xhtml" icon="fa fa-book"/>
+                        <p:menuitem value="Author Management" url="/admin/authormanagement.xhtml" icon="fa fa-pencil"/>
+                        <p:menuitem value="Publisher Management" url="/admin/publishermanagement.xhtml"
+                                    icon="fa fa-building"/>
+                        <p:menuitem value="Category Management" url="/admin/categorymanagement.xhtml"
+                                    icon="fa fa-list"/>
+                        <p:menuitem value="Cargo Management" url="/admin/cargomanagement.xhtml"
+                                    icon="fa fa-truck"/>
+                        <p:menuitem value="Campaign Management" url="/admin/campaignmanagement.xhtml"
+                                    icon="fa fa-angle-double-down"/>
+                        <p:menuitem value="Order Management" url="/admin/ordermanagement.xhtml"
+                                    icon="fa fa-shopping-bag"/>
+                    </p:megaMenu>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="ui-g-1"></div>
+
+    </div>
+
+</ui:composition>
+</body>
+</html>

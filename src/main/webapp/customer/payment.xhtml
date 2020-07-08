@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pe="http://primefaces.org/ui/extensions"
+      lang="en">
+<f:view contentType="text/html" locale="en">
+    <pe:head title="Bookworm Online Bookstore">
+        <f:facet name="first">
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        </f:facet>
+        <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/META-INF/resources/css/main.css"/>
+        <h:outputStylesheet name="primeicons/primeicons.css" library="primefaces"/>
+        <style>
+            body {
+                background-image: url("#{resource['images/background.jpg']}") !important;
+                background-size: cover;
+                background-attachment: fixed;
+                background-position: center center;
+            }
+
+            body .ui-steps .ui-steps-item {
+                width: 25%;
+            }
+
+            body .ui-state-highlight {
+                text-shadow: none !important;
+            }
+
+            body .ui-steps.custom {
+                margin-bottom: 30px;
+            }
+
+            body .ui-steps.custom .ui-steps-item .ui-menuitem-link {
+                height: 10px;
+                padding: 0 1em;
+                overflow: visible;
+                border: 1px solid #c8c8c8;
+                display: block;
+                background-color: #FFFFFF;
+            }
+
+            body .ui-steps.custom .ui-steps-item .ui-menuitem-link .ui-steps-number {
+                background-color: #0081c2;
+                color: #FFFFFF;
+                display: inline-block;
+                width: 30px;
+                border-radius: 10px;
+                margin-top: -10px;
+                margin-bottom: 10px;
+                position: relative;
+                top: -3px;
+            }
+
+            body .ui-steps.custom .ui-steps-item .ui-menuitem-link .ui-steps-title {
+                margin-top: -6px;
+            }
+
+            body .ui-steps.custom .ui-steps-item.ui-state-highlight .ui-menuitem-link .ui-steps-title {
+                color: #555;
+            }
+        </style>
+    </pe:head>
+    <h:body>
+        <p:outputPanel>
+            <ui:insert name="header">
+                <ui:include src="/template/common/header.xhtml"/>
+            </ui:insert>
+
+            <div class="ui-g" style="min-height: 65vh">
+                <div class="ui-g-2"></div>
+                <div class="ui-g-8" style="background-color: white">
+
+                    <p:outputPanel>
+
+                        <h:form id="cargoForm" prependId="false">
+
+                            <p:steps activeIndex="2" readonly="false">
+                                <p:menuitem value="Your Cart" url="/customer/checkout.xhtml"/>
+                                <p:menuitem value="Cargo Selection" url="/customer/cargoselection.xhtml"/>
+                                <p:menuitem value="Payment" url="/customer/payment.xhtml"/>
+                                <p:menuitem value="Confirmation" url="/customer/confirmation.xhtml"/>
+                            </p:steps>
+
+                            <p:panelGrid id="pnlCreditCard"
+                                         columns="3"
+                                         style="width: 100%"
+                                         layout="grid">
+
+                                <f:facet name="header">
+                                    <pe:creditCard id="creditCard"
+                                                   labelMonthYear="MM/YY"
+                                                   placeholderExpiry="**/**"
+                                                   placeholderName="*** ***"/>
+                                </f:facet>
+
+                                <p:outputLabel for="@next" value="Card Number:" style="font-weight: bold;"/>
+                                <p:inputText id="number"
+                                             value="#{checkOutController.number}"
+                                             required="true"
+                                             requiredMessage="Please fill this area!"
+                                             placeholder="Card number"/>
+                                <p:message for="number"/>
+
+                                <p:outputLabel for="@next" value="Name (written on the card):" style="font-weight: bold;"/>
+                                <p:inputText id="name"
+                                             value="#{checkOutController.name}"
+                                             required="true"
+                                             requiredMessage="Please fill this area!"
+                                             placeholder="Full name"/>
+                                <p:message for="name"/>
+
+                                <p:outputLabel for="@next" value="Expiry Date:" style="font-weight: bold;"/>
+                                <p:inputText id="expiry"
+                                             value="#{checkOutController.expiry}"
+                                             required="true"
+                                             requiredMessage="Please fill this area!"
+                                             placeholder="MM/YY"/>
+                                <p:message for="expiry"/>
+
+                                <p:outputLabel for="@next" value="Cvc Number:" style="font-weight: bold;"/>
+                                <p:inputText id="cvc"
+                                             value="#{checkOutController.cvc}"
+                                             required="true"
+                                             requiredMessage="Please fill this area!"
+                                             placeholder="CVC"/>
+                                <p:message for="cvc"/>
+
+                            </p:panelGrid>
+
+                            <div class="ui-g-offset-8 ui-g-2">
+                                <h:outputText value="Delivery Cost: " style="font-size: 1.5em;font-weight: bold;"/>
+                            </div>
+
+                            <div class="ui-g-2">
+                                <p:column rendered="#{shoppingBasketController.freeShipping}">
+                                    <h:outputText value="FREE" style="font-size: 1.5em;font-weight: bold;color: #E82D60;"/>
+                                </p:column>
+
+                                <p:column rendered="#{!shoppingBasketController.freeShipping and checkOutController.selectedCargo.name == null}">
+                                    <h:outputText value="-" style="font-size: 1.5em;font-weight: bold;"/>
+                                </p:column>
+
+                                <p:column rendered="#{!shoppingBasketController.freeShipping and checkOutController.selectedCargo.name != null}">
+                                    <h:outputText value="#{checkOutController.selectedCargo.shippingCost + shoppingBasketController.getBasketCount()}"
+                                                  style="font-weight: bold;color: #E82D60;font-size: 1.5em">
+                                        <f:convertNumber type="currency" locale="en_US"/>
+                                    </h:outputText>
+                                </p:column>
+                            </div>
+
+                            <div class="ui-g-offset-8 ui-g-2">
+                                <h:outputText value="Total: " style="font-weight: bold;font-size: 2em"/>
+                            </div>
+
+                            <div class="ui-g-2">
+                                <h:outputText value="#{checkOutController.totalCost}"
+                                              style="font-weight: bold;color: #E82D60;font-size: 2em">
+                                    <f:convertNumber type="currency" locale="en_US"/>
+                                </h:outputText>
+                            </div>
+
+                            <div class="ui-g-8">
+                                <p:graphicImage url="/images/payment.png" style="width: 50%"/>
+                            </div>
+
+                            <div class="ui-g-offset-1 ui-g-2 ui-g-offset-1">
+                                <p:commandButton value="Confirm"
+                                                 validateClient="true"
+                                                 action="/customer/confirmation.xhtml"
+                                                 style="font-size: 2vh;width: 100%"/>
+                            </div>
+                        </h:form>
+
+                    </p:outputPanel>
+
+                </div>
+                <div class="ui-g-2"></div>
+            </div>
+
+            <ui:insert name="footer">
+                <ui:include src="/template/common/footer.xhtml"/>
+            </ui:insert>
+        </p:outputPanel>
+    </h:body>
+</f:view>
+</html>

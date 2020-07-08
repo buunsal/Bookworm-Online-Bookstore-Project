@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pe="http://primefaces.org/ui/extensions"
+      lang="en">
+<f:view contentType="text/html" locale="en">
+    <pe:head title="Bookworm Online Bookstore">
+        <f:facet name="first">
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        </f:facet>
+        <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/css/main.css"/>
+        <h:outputStylesheet name="primeicons/primeicons.css" library="primefaces"/>
+        <style>
+            body {
+                background-image: url("#{resource['images/background.jpg']}") !important;
+                background-size: cover;
+                background-attachment: fixed;
+                background-position: center center;
+            }
+            .book {
+                width: 5%;
+            }
+
+            .detail {
+                width: 55%;
+                padding-left: 25px;
+            }
+
+            .op {
+                text-align: right;
+                width: 20%;
+                padding-left: 25px;
+            }
+        </style>
+    </pe:head>
+    <h:body>
+        <p:outputPanel>
+            <ui:insert name="header">
+                <ui:include src="/template/common/header.xhtml"/>
+            </ui:insert>
+
+            <div class="ui-g" style="min-height: 65vh">
+                <div class="ui-g-2"></div>
+                <div class="ui-g-8">
+
+                    <div class="ui-g-12"
+                         style="text-align: center;
+                         background-color: #E82D60;
+                         border-radius: 10px 10px 10px 10px">
+
+                        <h1 style="color:white">ORDER INFORMATION</h1>
+
+                    </div>
+
+                    <p:spacer height="20"/>
+
+                    <p:panelGrid layout="grid" columns="1">
+
+                        <p:dataView value="#{orderPageController.shoppingBasket.carts}" var="cart">
+
+                            <f:facet name="header">
+                                <h:outputText value="Cart Info" style="font-size: 2em;font-weight: bold"/>
+                            </f:facet>
+
+                            <p:dataViewListItem>
+                                <p:panelGrid columns="3" style="width: 100%" styleClass="ui-noborder"
+                                             columnClasses="book,detail,op">
+                                    <p:column>
+                                        <h:link outcome="/viewbook.xhtml?isbn=#{cart.book.ISBN}">
+                                            <p:graphicImage url="#{cart.book.picture}"
+                                                            style="width: 12em;height: 18em;"/>
+                                        </h:link>
+                                    </p:column>
+
+                                    <p:panelGrid columns="1" cellpadding="5" styleClass="ui-noborder"
+                                                 style="text-align: left;">
+                                        <h:link outcome="/viewbook.xhtml?isbn=#{cart.book.ISBN}">
+                                            <h:outputText value="#{cart.book.title}"
+                                                          style="font-size: 2em;font-weight: bold;color: black"/>
+                                        </h:link>
+
+                                        <p:column>
+                                            <h:outputText value="Paperback, English | " style="float: left"/>
+                                            <h:outputText value="#{cart.book.authors.iterator().next().name}"
+                                                          style="float: left"/>
+                                        </p:column>
+
+
+                                        <p:column rendered="#{cart.book.campaigns.size() != 0}">
+
+                                            <h:outputText
+                                                    value="#{cart.book.getPrice() / 100 * (100 - cart.book.getCampaigns().iterator().next().getDiscount_amount())}"
+                                                    style="font-size: 2em;font-weight: bold;color: #E82D60">
+                                                <f:convertNumber type="currency" locale="en_US"/>
+                                            </h:outputText>
+
+                                            <del style="font-size: 1.5em">
+                                                $#{cart.book.price}
+                                            </del>
+
+                                            <br/>
+
+                                            Save
+
+                                            <h:outputText
+                                                    value="#{cart.book.getPrice() / 100 * (cart.book.getCampaigns().iterator().next().getDiscount_amount())}"
+                                                    style="font-style: italic; font-size: 1em;">
+                                                <f:convertNumber type="currency" locale="en_US"/>
+                                            </h:outputText>
+
+                                        </p:column>
+
+                                        <p:column rendered="#{cart.book.campaigns.size() == 0}">
+
+                                            <div style="color: #E82D60;font-size: 2em;font-weight:bold;">
+                                                $#{cart.book.price}
+                                            </div>
+
+                                            <br/>
+
+                                        </p:column>
+
+                                    </p:panelGrid>
+
+                                    <p:panelGrid columns="2" cellpadding="5" styleClass="ui-noborder">
+                                        <p:outputLabel for="@next" value="Quantity:"
+                                                       style="font-weight: bold; font-size: 1.5em"/>
+
+                                        <h:outputText value="#{cart.book_count}"
+                                                      style="font-weight: bold; font-size: 1.5em"/>
+
+                                        <p:outputLabel for="@next" value="Total:"
+                                                       style="font-weight: bold; font-size: 1.5em"/>
+
+                                        <p:column rendered="#{cart.book.campaigns.size() != 0}">
+
+                                            <h:outputText
+                                                    value="#{(cart.book.getPrice() / 100 * (100 - cart.book.getCampaigns().iterator().next().getDiscount_amount()))
+                                                        * cart.book_count}"
+
+                                                    style="font-size: 1.5em;font-weight: bold;color: #E82D60">
+                                                <f:convertNumber type="currency" locale="en_US"/>
+                                            </h:outputText>
+
+                                        </p:column>
+
+                                        <p:column rendered="#{cart.book.campaigns.size() == 0}">
+
+                                            <h:outputText
+                                                    value="#{cart.book.price * cart.book_count}"
+                                                    style="font-size: 1.5em;font-weight: bold;color: #E82D60">
+                                                <f:convertNumber type="currency" locale="en_US"/>
+                                            </h:outputText>
+                                        </p:column>
+
+                                    </p:panelGrid>
+
+                                </p:panelGrid>
+
+                                <p:separator/>
+
+                            </p:dataViewListItem>
+
+                            <f:facet name="footer">
+
+                                <div style="text-align: right">
+
+                                    <h:outputText value="Delivery Cost: " style="font-size: 1.5em;font-weight: bold;"/>
+
+                                    <h:outputText value="FREE"
+                                                  rendered="#{orderPageController.shoppingBasket.payment.amount eq orderPageController.basketCost}"
+                                                  style="font-size: 1.5em;font-weight: bold;color: #E82D60;"/>
+
+                                    <h:outputText
+                                            value="#{orderPageController.shoppingBasket.payment.amount - orderPageController.basketCost}"
+                                            rendered="#{orderPageController.shoppingBasket.payment.amount != orderPageController.basketCost}"
+                                            style="font-weight: bold;color: #E82D60;font-size: 1.5em">
+
+                                        <f:convertNumber type="currency" locale="en_US"/>
+
+                                    </h:outputText>
+
+                                </div>
+
+                                <div style="text-align: right">
+                                    <h:outputText value="Total: " style="font-weight: bold;font-size: 2em"/>
+
+                                    <h:outputText value="#{orderPageController.shoppingBasket.payment.amount}"
+                                                  style="font-weight: bold;color: #E82D60;font-size: 2em">
+                                        <f:convertNumber type="currency" locale="en_US"/>
+                                    </h:outputText>
+                                </div>
+
+                                <p:separator/>
+
+                                <p:panelGrid columns="2"
+                                             cellpadding="5"
+                                             styleClass="ui-noborder"
+                                             style="text-align: left;width: 100%">
+
+                                    <f:facet name="header">
+                                        CARGO INFO
+                                    </f:facet>
+
+                                    <p:outputLabel for="@next" value="Cargo Firm: "
+                                                   style="font-size: 1.5em;font-weight: bold;color: black"/>
+
+                                    <h:outputText value="#{orderPageController.shoppingBasket.cargos.iterator().next().name}"
+                                                  style="font-size: 1.5em;color: black"/>
+
+                                    <p:outputLabel for="@next" value="Phone Number: "
+                                                   style="font-size: 1.5em;font-weight: bold;color: black"/>
+
+                                    <h:outputText
+                                            value="#{orderPageController.shoppingBasket.cargos.iterator().next().phoneNumber}"
+                                            style="font-size: 1.5em;color: black"/>
+
+                                    <p:outputLabel for="@next" value="Email: "
+                                                   style="font-size: 1.5em;font-weight: bold;color: black"/>
+
+                                    <h:outputText value="#{orderPageController.shoppingBasket.cargos.iterator().next().email}"
+                                                  style="font-size: 1.5em;color: black"/>
+
+                                    <p:outputLabel for="@next" value="Check Cargo Status: "
+                                                   style="font-size: 1.5em;font-weight: bold;color: black"/>
+
+                                    <h:outputLink value="http://#{orderPageController.shoppingBasket.cargos.iterator().next().url}">
+                                        <h:outputText value="#{orderPageController.shoppingBasket.cargos.iterator().next().name} Status"
+                                                      style="font-size: 1.5em;"/>
+                                    </h:outputLink>
+
+                                </p:panelGrid>
+
+                            </f:facet>
+
+                        </p:dataView>
+
+                    </p:panelGrid>
+
+                </div>
+                <div class="ui-g-2"></div>
+            </div>
+
+            <ui:insert name="footer">
+                <ui:include src="/template/common/footer.xhtml"/>
+            </ui:insert>
+        </p:outputPanel>
+    </h:body>
+</f:view>
+</html>

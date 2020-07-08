@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pe="http://primefaces.org/ui/extensions"
+      lang="en">
+
+<f:view contentType="text/html" locale="en">
+    <pe:head title="Cargo Management">
+        <f:facet name="first">
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        </f:facet>
+        <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/css/main.css"/>
+        <h:outputStylesheet name="primeicons/primeicons.css" library="primefaces"/>
+        <style>
+            body {
+                background-image: url("#{resource['images/background.jpg']}") !important;
+                background-size: cover;
+                background-attachment: fixed;
+                background-position: center center;
+            }
+
+            .ui-datatable .ui-datatable-header {
+                text-align: right;
+            }
+        </style>
+    </pe:head>
+    <h:body>
+        <p:outputPanel>
+            <ui:insert name="header">
+                <ui:include src="/template/admin/header.xhtml"/>
+            </ui:insert>
+            <div class="ui-g" style="min-height: 65vh">
+
+                <div class="ui-g-1"></div>
+
+                <div class="ui-g-10">
+                    <p:panel id="cargoManagement" header="Cargo Management" style="text-align: center;">
+
+                        <p:outputPanel style="text-align: left!important;">
+
+                            <p:commandButton value="Create a New Cargo" onclick="PF('dlg').show();"
+                                             type="button" icon="fa fa-plus"/>
+
+                        </p:outputPanel>
+
+                        <br/>
+
+                        <p:outputPanel>
+
+                            <p:blockUI block=":cargos" trigger=":cargos:cargoList:deleteButton"/>
+                            <p:blockUI block=":cargos" trigger=":add:addButton"/>
+                            <p:blockUI block=":cargos" trigger=":update:saveButton"/>
+
+                            <h:form id="cargos" style="border: none">
+                                <p:growl id="growl" showDetail="true" life="2000"/>
+
+                                <p:dataTable id="cargoList"
+                                             var="cargo"
+                                             value="#{cargoController.cargos}"
+                                             rows="10"
+                                             paginator="true"
+                                             widgetVar="cargoTable"
+                                             filteredValue="#{cargoController.filteredCargos}"
+                                             globalFilterFunction="#{cargoController.globalFilterFunction}"
+                                             rowKey="#{cargo.id}">
+
+                                    <f:facet name="header">
+                                        <p:outputPanel>
+                                            <h:outputText value="Search all fields:  "/>
+                                            <p:inputText id="globalFilter"
+                                                         onkeyup="PF('cargoTable').filter()"
+                                                         style="width:150px"
+                                                         placeholder="Enter keyword"/>
+                                        </p:outputPanel>
+                                    </f:facet>
+
+                                    <p:column sortBy="#{cargo.id}" headerText="ID" colspan="1">
+                                        <p:outputLabel value="#{cargo.id}"/>
+                                    </p:column>
+
+                                    <p:column sortBy="#{cargo.name}" headerText="Name" colspan="2">
+                                        <p:outputLabel id="nameOutput" value="#{cargo.name}"/>
+                                        <p:tooltip id="nameFade" for="nameOutput"
+                                                   value="#{cargo.name}" position="top"/>
+                                    </p:column>
+
+                                    <p:column sortBy="#{cargo.email}" headerText="Email" colspan="4">
+                                        <p:outputLabel id="emailOutput" value="#{cargo.email}"/>
+                                        <p:tooltip id="emailFade" for="emailOutput"
+                                                   value="#{cargo.email}" position="top"/>
+                                    </p:column>
+
+                                    <p:column sortBy="#{cargo.phoneNumber}" headerText="Phone Number" colspan="2">
+                                        <p:outputLabel id="phoneNumberOutput" value="#{cargo.phoneNumber}"/>
+                                        <p:tooltip id="phoneNumberFade" for="phoneNumberOutput"
+                                                   value="#{cargo.phoneNumber}" position="top"/>
+                                    </p:column>
+
+                                    <p:column sortBy="#{cargo.url}" headerText="Url" colspan="4">
+                                        <p:outputLabel id="urlOutput" value="#{cargo.url}"/>
+                                        <p:tooltip id="urlFade" for="urlOutput"
+                                                   value="#{cargo.url}" position="top"/>
+                                    </p:column>
+
+                                    <p:column sortBy="#{cargo.shippingCost}" headerText="Base Cost" colspan="4">
+                                        <p:outputLabel id="costOutput" value="#{cargo.shippingCost}"/>
+                                        <p:tooltip id="costFade" for="costOutput"
+                                                   value="#{cargo.shippingCost}" position="top"/>
+                                    </p:column>
+
+                                    <p:column style="text-align: center" headerText="Action" colspan="3">
+                                        <p:commandButton update=":update" oncomplete="PF('dlg2').show()"
+                                                         id="updateButton" value="Update" icon="fa fa-edit">
+                                            <f:setPropertyActionListener value="#{cargo}"
+                                                                         target="#{cargoController.selectedCargo}"/>
+                                        </p:commandButton>
+
+                                        <p:spacer width="10"/>
+
+                                        <p:commandButton update=":cargos" value="Delete"
+                                                         icon="fa fa-trash" id="deleteButton"
+                                                         action="#{cargoController.delete(cargo)}">
+                                            <p:confirm header="Confirmation" message="Are you sure?"
+                                                       icon="fa fa-alert"/>
+                                        </p:commandButton>
+
+                                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade"
+                                                         closable="false" responsive="true">
+                                            <p:commandButton value="Yes" type="button"
+                                                             styleClass="ui-confirmdialog-yes"
+                                                             icon="fa fa-check"/>
+                                            <p:commandButton value="No" type="button"
+                                                             styleClass="ui-confirmdialog-no"
+                                                             icon="fa fa-times"/>
+                                        </p:confirmDialog>
+                                    </p:column>
+                                </p:dataTable>
+
+                            </h:form>
+
+                            <h:form id="add">
+                                <p:dialog header="Create a New Cargo"
+                                          widgetVar="dlg"
+                                          modal="true"
+                                          draggable="false"
+                                          resizable="false"
+                                          responsive="true">
+
+                                    <h:panelGrid id="createPanel" columns="3">
+
+                                        <p:outputLabel for="name" value="Name"/>
+                                        <p:inputText id="name"
+                                                     required="true"
+                                                     requiredMessage="This field must be filled!"
+                                                     value="#{cargoController.cargo.name}">
+                                        </p:inputText>
+                                        <p:message for="name"/>
+
+                                        <p:outputLabel for="email" value="Email"/>
+                                        <p:inputText id="email"
+                                                     required="true"
+                                                     requiredMessage="This field must be filled!"
+                                                     value="#{cargoController.cargo.email}">
+                                        </p:inputText>
+                                        <p:message for="email"/>
+
+                                        <p:outputLabel for="phoneNumber" value="Phone Number"/>
+                                        <pe:inputPhone id="phoneNumber" style="width: 100%"
+                                                       initialCountry="tr"
+                                                       formatOnDisplay="true"
+                                                       value="#{cargoController.cargo.phoneNumber}">
+                                        </pe:inputPhone>
+                                        <p:message for="phoneNumber"/>
+
+                                        <p:outputLabel for="url" value="Url"/>
+                                        <p:inputText id="url"
+                                                     required="true"
+                                                     requiredMessage="This field must be filled!"
+                                                     value="#{cargoController.cargo.url}">
+                                        </p:inputText>
+                                        <p:message for="url"/>
+
+                                        <p:outputLabel for="cost" value="Base Cost"/>
+                                        <p:inputText id="cost"
+                                                     required="true"
+                                                     requiredMessage="This field must be filled!"
+                                                     value="#{cargoController.cargo.shippingCost}">
+                                        </p:inputText>
+                                        <p:message for="cost"/>
+
+                                        <p:column>
+
+                                        </p:column>
+                                        <f:facet name="footer">
+                                            <p:commandButton update=":add :cargos" validateClient="true"
+                                                             value="Save" icon="fa fa-save" id="addButton"
+                                                             actionListener="#{cargoController.add}"/>
+                                        </f:facet>
+
+                                    </h:panelGrid>
+                                </p:dialog>
+                            </h:form>
+
+                            <h:form id="update">
+                                <p:dialog header="Update Cargo"
+                                          widgetVar="dlg2"
+                                          modal="true"
+                                          draggable="false"
+                                          resizable="false"
+                                          responsive="true">
+
+                                    <h:panelGrid id="updatePanel" columns="3"
+                                                 style="width:100%;text-align: center">
+
+                                        <p:outputLabel for="nameupdate" value="Name"/>
+                                        <p:inputText id="nameupdate"
+                                                     required="true"
+                                                     requiredMessage="This field must be filled!"
+                                                     value="#{cargoController.selectedCargo.name}">
+                                        </p:inputText>
+                                        <p:message for="nameupdate"/>
+
+                                        <p:outputLabel for="emailupdate" value="Email"/>
+                                        <p:inputText id="emailupdate"
+                                                     required="true"
+                                                     requiredMessage="This field must be filled!"
+                                                     value="#{cargoController.selectedCargo.email}">
+                                        </p:inputText>
+                                        <p:message for="emailupdate"/>
+
+                                        <p:outputLabel for="phoneNumberupdate" value="Phone Number"/>
+                                        <pe:inputPhone id="phoneNumberupdate" style="width: 100%"
+                                                       initialCountry="tr"
+                                                       formatOnDisplay="true"
+                                                       value="#{cargoController.selectedCargo.phoneNumber}">
+                                        </pe:inputPhone>
+                                        <p:message for="phoneNumberupdate"/>
+
+                                        <p:outputLabel for="urlupdate" value="Url"/>
+                                        <p:inputText id="urlupdate"
+                                                     required="true"
+                                                     requiredMessage="This field must be filled!"
+                                                     value="#{cargoController.selectedCargo.url}">
+                                        </p:inputText>
+                                        <p:message for="urlupdate"/>
+
+                                        <p:outputLabel for="costupdate" value="Base Cost"/>
+                                        <p:inputText id="costupdate"
+                                                     required="true"
+                                                     requiredMessage="This field must be filled!"
+                                                     value="#{cargoController.selectedCargo.shippingCost}">
+                                        </p:inputText>
+                                        <p:message for="costupdate"/>
+
+                                        <f:facet name="footer">
+                                            <p:commandButton update=":cargos" validateClient="true"
+                                                             id="saveButton" value="Save"
+                                                             action="#{cargoController.update()}"
+                                                             icon="fa fa-save">
+                                                <f:ajax execute="@form" render="@form"/>
+                                            </p:commandButton>
+                                        </f:facet>
+
+                                    </h:panelGrid>
+                                </p:dialog>
+                            </h:form>
+
+                        </p:outputPanel>
+
+                        <br/>
+
+                    </p:panel>
+                </div>
+
+                <div class="ui-g-1"></div>
+
+            </div>
+
+            <ui:insert name="footer">
+                <ui:include src="/template/admin/footer.xhtml"/>
+            </ui:insert>
+        </p:outputPanel>
+    </h:body>
+</f:view>
+</html>

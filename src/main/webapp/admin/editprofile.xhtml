@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pe="http://primefaces.org/ui/extensions"
+      lang="en">
+<f:view contentType="text/html" locale="en">
+    <pe:head title="Edit Profile">
+        <f:facet name="first">
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        </f:facet>
+        <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/css/main.css"/>
+        <h:outputStylesheet name="primeicons/primeicons.css" library="primefaces"/>
+        <style>
+            body {
+                background-image: url("#{resource['images/background.jpg']}") !important;
+                background-size: cover;
+                background-attachment: fixed;
+                background-position: center center;
+            }
+        </style>
+    </pe:head>
+    <h:body>
+        <p:outputPanel>
+            <ui:insert name="header">
+                <ui:include src="/template/admin/header.xhtml"/>
+            </ui:insert>
+            <div class="ui-g" style="min-height: 65vh">
+                <div class="ui-g-4"></div>
+
+                <div class="ui-g-4">
+                    <h:form id="editProfileForm">
+                        <p:outputPanel style="background-color: white;border-radius: 10px 10px 0 0">
+                            <h1 style="color: white;text-align: center;background-color: #007AD9;border-radius: 10px 10px 0 0">Edit Profile</h1>
+                            <div class="ui-fluid">
+                                <h:panelGrid id="personalPanel" columns="1" columnClasses="ui-g-12"
+                                             styleClass="customPanelGrid" style="width: 100%">
+
+                                    <p:panelGrid columns="2" columnClasses="ui-g-6 ui-g-6" layout="grid"
+                                                 styleClass="ui-noborder">
+                                        <p:outputLabel for="nameupdate" value="Name" style="font-weight: bold"/>
+
+                                        <p:outputLabel for="lastNameupdate" value="LastName" style="font-weight: bold"/>
+
+                                        <p:inputText id="nameupdate" style="width: 100%"
+                                                     value="#{sessionController.user.name}"/>
+
+                                        <p:inputText id="lastNameupdate" style="width: 100%"
+                                                     value="#{sessionController.user.lastName}"/>
+
+                                        <p:outputLabel for="birthdayupdate" value="Birthday" style="font-weight: bold"/>
+                                        <p:outputLabel for="genderupdate" value="Gender" style="font-weight: bold"/>
+
+                                        <p:calendar id="birthdayupdate" inputStyle="width: 100%" yearRange="c-70:c"
+                                                    value="#{sessionController.user.birthday}"
+                                                    navigator="true"/>
+
+                                        <p:selectOneMenu id="genderupdate" style="width: 100%"
+                                                         value="#{sessionController.user.gender}">
+                                            <f:selectItem itemLabel="Male" itemValue="True"/>
+                                            <f:selectItem itemLabel="Female" itemValue="False"/>
+                                        </p:selectOneMenu>
+
+                                        <p:outputLabel for="phoneNumberupdate" value="Phone Number"
+                                                       style="font-weight: bold"/>
+
+                                        <p:outputLabel for="countryupdate" value="Country" style="font-weight: bold"/>
+
+                                        <pe:inputPhone id="phoneNumberupdate" style="width: 100%"
+                                                       initialCountry="tr"
+                                                       formatOnDisplay="true"
+                                                       value="#{sessionController.user.phoneNumber}">
+                                        </pe:inputPhone>
+
+                                        <p:inputText id="countryupdate" style="width: 100%"
+                                                     value="#{sessionController.user.country}"/>
+
+                                        <p:outputLabel for="cityupdate" value="Town / City" style="font-weight: bold"/>
+
+                                        <p:outputLabel for="countyupdate" value="County / State / Region"
+                                                       style="font-weight: bold"/>
+
+                                        <p:inputText id="cityupdate" style="width: 100%"
+                                                     value="#{sessionController.user.city}"/>
+
+                                        <p:inputText id="countyupdate" style="width: 100%"
+                                                     value="#{sessionController.user.county}"/>
+
+                                    </p:panelGrid>
+
+                                    <p:panelGrid columns="1" columnClasses="ui-g-12" layout="grid"
+                                                 styleClass="ui-noborder">
+
+                                        <p:outputLabel for="addressupdate" value="Address" style="font-weight: bold"/>
+                                        <p:inputTextarea id="addressupdate" style="width: 100%" maxlength="255"
+                                                         value="#{sessionController.user.address}"/>
+                                    </p:panelGrid>
+
+                                    <p:panelGrid columns="3" columnClasses="ui-g-4 ui-g-4 ui-g-4" layout="grid"
+                                                 styleClass="ui-noborder">
+                                        <p:column>
+
+                                        </p:column>
+
+                                        <p:commandButton value="Save" validateClient="true"
+                                                         update="editProfileForm"
+                                                         action="#{profileController.updateProfile(sessionController.user)}"
+                                                         onstart="PF('blockUIWidget').block()"
+                                                         oncomplete="PF('blockUIWidget').unblock()"/>
+
+                                        <p:column>
+
+                                        </p:column>
+
+                                    </p:panelGrid>
+
+                                    <pe:blockUI widgetVar="blockUIWidget" css="{backgroundColor: 'white'}"
+                                                cssOverlay="{opacity:0.5}" showOverlay="true">
+                                        <p:outputPanel style="background-color: white">
+                                            <h:panelGrid columns="2" styleClass="ql-color-white"
+                                                         style="background-color: white">
+                                                <h:graphicImage library="images" name="loader.gif"
+                                                                style="vertical-align: middle;"/>
+                                                <h:outputText value="Please wait..."
+                                                              style="white-space: nowrap;color: #007AD9;font-size: xx-large"/>
+                                            </h:panelGrid>
+                                        </p:outputPanel>
+                                    </pe:blockUI>
+
+                                </h:panelGrid>
+                            </div>
+                            <h1 style="color: #007AD9;text-align: center;background-color: #007AD9;border-radius: 0 0 10px 10px">Edit Profile</h1>
+                        </p:outputPanel>
+                    </h:form>
+                </div>
+
+                <div class="ui-g-4"></div>
+            </div>
+
+            <ui:insert name="footer">
+                <ui:include src="/template/admin/footer.xhtml"/>
+            </ui:insert>
+        </p:outputPanel>
+    </h:body>
+</f:view>
+</html>

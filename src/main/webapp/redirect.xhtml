@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pe="http://primefaces.org/ui/extensions"
+      lang="en">
+<f:view contentType="text/html" locale="en">
+    <pe:head title="Redirecting">
+        <f:facet name="first">
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        </f:facet>
+        <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/css/main.css"/>
+        <h:outputStylesheet name="primeicons/primeicons.css" library="primefaces"/>
+        <style>
+            body {
+                background-image: url("#{resource['images/background.jpg']}") !important;
+                background-size: cover;
+                background-attachment: fixed;
+                background-position: center center;
+            }
+        </style>
+    </pe:head>
+    <h:body>
+        <p:outputPanel>
+            <ui:insert name="header">
+                <ui:include src="/template/common/header.xhtml"/>
+            </ui:insert>
+
+            <div class="ui-g" style="min-height: 65vh">
+
+                <div class="ui-g-4"></div>
+
+                <div class="ui-g-4">
+                    <h1 style="color: #007AD9">Successful SignIn</h1>
+                    <h:form id="redirect-form" prependId="false">
+
+                        <p:panel>
+                            <h:panelGrid id="redirectPanel" columns="1" style="margin: 0 auto;">
+
+                                <p:column>
+                                    <h5 style="text-align: center">Please wait while you are redirected ...</h5>
+                                </p:column>
+                                <p:column>
+                                    <script>
+                                        window.sync = function (t) {
+                                            PF('knob').setValue(t.current);
+                                        }
+                                    </script>
+                                    <pe:timer
+                                            visible="false"
+                                            ontimerstep="sync(intervalData)"
+                                            ontimercomplete="rc()"
+                                            timeout="1"
+                                            autoStart="true"/>
+                                    <p:knob
+                                            min="0"
+                                            max="5"
+                                            widgetVar="knob"
+                                            disabled="true"
+                                            value="0"
+                                            foregroundColor="#007AD9"/>
+                                    <p:remoteCommand name="rc" action="#{sessionController.init}"
+                                                     immediate="true"/>
+                                </p:column>
+                                <p:column>
+                                    <br/>
+                                </p:column>
+
+                            </h:panelGrid>
+                        </p:panel>
+                    </h:form>
+                </div>
+
+                <div class="ui-g-4"></div>
+
+            </div>
+
+            <ui:insert name="footer">
+                <ui:include src="/template/common/footer.xhtml"/>
+            </ui:insert>
+        </p:outputPanel>
+    </h:body>
+</f:view>
+</html>

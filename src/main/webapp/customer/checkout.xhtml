@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pe="http://primefaces.org/ui/extensions"
+      lang="en">
+<f:view contentType="text/html" locale="en">
+    <pe:head title="Bookworm Online Bookstore">
+        <f:facet name="first">
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        </f:facet>
+        <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/META-INF/resources/css/main.css"/>
+        <h:outputStylesheet name="primeicons/primeicons.css" library="primefaces"/>
+        <style>
+            body {
+                background-image: url("#{resource['images/background.jpg']}") !important;
+                background-size: cover;
+                background-attachment: fixed;
+                background-position: center center;
+            }
+
+            .book {
+                width: 5%;
+            }
+
+            .detail {
+                width: 55%;
+                padding-left: 25px;
+            }
+
+            .op {
+                text-align: right;
+                width: 20%;
+                padding-left: 25px;
+            }
+
+            body .ui-steps .ui-steps-item {
+                width: 25%;
+            }
+
+            body .ui-state-highlight {
+                text-shadow: none !important;
+            }
+
+            body .ui-steps.custom {
+                margin-bottom: 30px;
+            }
+
+            body .ui-steps.custom .ui-steps-item .ui-menuitem-link {
+                height: 10px;
+                padding: 0 1em;
+                overflow: visible;
+                border: 1px solid #c8c8c8;
+                display: block;
+                background-color: #FFFFFF;
+            }
+
+            body .ui-steps.custom .ui-steps-item .ui-menuitem-link .ui-steps-number {
+                background-color: #0081c2;
+                color: #FFFFFF;
+                display: inline-block;
+                width: 30px;
+                border-radius: 10px;
+                margin-top: -10px;
+                margin-bottom: 10px;
+                position: relative;
+                top: -3px;
+            }
+
+            body .ui-steps.custom .ui-steps-item .ui-menuitem-link .ui-steps-title {
+                margin-top: -6px;
+            }
+
+            body .ui-steps.custom .ui-steps-item.ui-state-highlight .ui-menuitem-link .ui-steps-title {
+                color: #555;
+            }
+        </style>
+    </pe:head>
+    <h:body>
+        <p:outputPanel>
+            <ui:insert name="header">
+                <ui:include src="/template/common/header.xhtml"/>
+            </ui:insert>
+
+            <div class="ui-g" style="min-height: 65vh">
+
+                <div class="ui-g-2">
+
+                </div>
+
+                <div class="ui-g-8" style="background-color: white">
+
+                    <p:outputPanel>
+
+                        <h:form id="checkoutForm">
+
+                            <p:steps activeIndex="0" readonly="false">
+                                <p:menuitem value="Your Cart" url="/customer/checkout.xhtml"/>
+                                <p:menuitem value="Cargo Selection" url="/customer/cargoselection.xhtml"/>
+                                <p:menuitem value="Payment" url="/customer/payment.xhtml"/>
+                                <p:menuitem value="Confirmation" url="/customer/confirmation.xhtml"/>
+                            </p:steps>
+
+                            <p:dataView value="#{shoppingBasketController.cartList}" var="cart">
+                                <f:facet name="header">
+                                    <h:outputText value="YOUR CART" style="font-size: 2em;font-weight: bold"/>
+                                </f:facet>
+
+                                <p:dataViewListItem>
+                                    <p:panelGrid columns="3" style="width: 100%" styleClass="ui-noborder"
+                                                 columnClasses="book,detail,op">
+                                        <p:column>
+                                            <h:link outcome="/viewbook.xhtml?isbn=#{cart.book.ISBN}">
+                                                <p:graphicImage url="#{cart.book.picture}"
+                                                                style="width: 12em;height: 18em;"/>
+                                            </h:link>
+                                        </p:column>
+
+                                        <p:panelGrid columns="1" cellpadding="5" styleClass="ui-noborder"
+                                                     style="text-align: left;">
+                                            <h:link outcome="/viewbook.xhtml?isbn=#{cart.book.ISBN}">
+                                                <h:outputText value="#{cart.book.title}"
+                                                              style="font-size: 2em;font-weight: bold;color: black"/>
+                                            </h:link>
+
+                                            <p:column>
+                                                <p:rating value="#{checkOutController.bookRoundedRating(cart.book)}"
+                                                          readonly="true"
+                                                          style="float: left;font-size: 1.2em;"/>
+                                                <p:spacer width="10" style="float: left"/>
+                                                <h:outputText value="#{checkOutController.bookRating(cart.book)}"
+                                                              style="float: left;font-size: 1.5em;font-weight: bold;"/>
+                                            </p:column>
+
+                                            <p:column>
+                                                <h:outputText value="Paperback, English | " style="float: left"/>
+                                                <h:outputText value="#{cart.book.authors.iterator().next().name}"
+                                                              style="float: left"/>
+                                            </p:column>
+
+                                            <p:column>
+                                                <h:outputText value="Current Stock:"
+                                                              style="float: left; font-weight: bold;font-size: 1.2em;"/>
+                                                <p:spacer width="10" style="float: left"/>
+                                                <h:outputText value="#{cart.book.stock}"
+                                                              style="float: left;font-size: 1.2em;font-weight: bold;color: #E82D60;"/>
+                                            </p:column>
+
+                                            <p:column rendered="#{cart.book.campaigns.size() != 0}">
+
+                                                <h:outputText
+                                                        value="#{cart.book.getPrice() / 100 * (100 - cart.book.getCampaigns().iterator().next().getDiscount_amount())}"
+                                                        style="font-size: 2em;font-weight: bold;color: #E82D60">
+                                                    <f:convertNumber type="currency" locale="en_US"/>
+                                                </h:outputText>
+
+                                                <del style="font-size: 1.5em">
+                                                    $#{cart.book.price}
+                                                </del>
+
+                                                <br/>
+
+                                                Save
+
+                                                <h:outputText
+                                                        value="#{cart.book.getPrice() / 100 * (cart.book.getCampaigns().iterator().next().getDiscount_amount())}"
+                                                        style="font-style: italic; font-size: 1em;">
+                                                    <f:convertNumber type="currency" locale="en_US"/>
+                                                </h:outputText>
+
+                                            </p:column>
+
+                                            <p:column rendered="#{cart.book.campaigns.size() == 0}">
+
+                                                <div style="color: #E82D60;font-size: 2em;font-weight:bold;">
+                                                    $#{cart.book.price}
+                                                </div>
+
+                                            </p:column>
+
+                                            <p:column>
+                                                <h:outputText
+                                                        value="Available - dispatched from the TR in 3 business days"/>
+                                            </p:column>
+
+                                        </p:panelGrid>
+
+                                        <p:panelGrid columns="2" cellpadding="5" styleClass="ui-noborder">
+                                            <p:outputLabel for="@next" value="Quantity:"
+                                                           style="font-weight: bold; font-size: 1.5em"/>
+
+                                            <p:selectOneMenu var="count" value="#{cart.book_count}" id="quantityMenu">
+                                                <p:ajax listener="#{shoppingBasketController.newCount(cart)}"
+                                                        onstart="PF('blockUIWidget').block()"
+                                                        oncomplete="PF('blockUIWidget').unblock()"
+                                                        update=":cartForm :checkoutForm"/>
+                                                <f:selectItem itemLabel="1" itemValue="1"/>
+                                                <f:selectItem itemLabel="2" itemValue="2"/>
+                                                <f:selectItem itemLabel="3" itemValue="3"/>
+                                                <f:selectItem itemLabel="4" itemValue="4"/>
+                                                <f:selectItem itemLabel="5" itemValue="5"/>
+                                                <f:selectItem itemLabel="6" itemValue="6"/>
+                                                <f:selectItem itemLabel="7" itemValue="7"/>
+                                                <f:selectItem itemLabel="8" itemValue="8"/>
+                                                <f:selectItem itemLabel="9" itemValue="9"/>
+                                                <f:selectItem itemLabel="10" itemValue="10"/>
+                                                <f:selectItem itemLabel="11" itemValue="11"/>
+                                                <f:selectItem itemLabel="12" itemValue="12"/>
+                                                <f:selectItem itemLabel="13" itemValue="13"/>
+                                                <f:selectItem itemLabel="14" itemValue="14"/>
+                                                <f:selectItem itemLabel="15" itemValue="15"/>
+                                                <f:selectItem itemLabel="16" itemValue="16"/>
+                                                <f:selectItem itemLabel="17" itemValue="17"/>
+                                                <f:selectItem itemLabel="18" itemValue="18"/>
+                                                <f:selectItem itemLabel="19" itemValue="19"/>
+                                                <f:selectItem itemLabel="20" itemValue="20"/>
+                                            </p:selectOneMenu>
+
+                                            <p:column>
+
+                                            </p:column>
+
+                                            <p:column rendered="#{cart.book.campaigns.size() != 0}">
+
+                                                <h:outputText
+                                                        value="#{(cart.book.getPrice() *(100-(cart.book.getCampaigns().iterator().next().getDiscount_amount()))/100)
+                                                        * cart.book_count}"
+                                                        style="font-size: 1.5em;font-weight: bold;color: #E82D60">
+                                                    <f:convertNumber type="currency" locale="en_US"/>
+                                                </h:outputText>
+
+                                            </p:column>
+
+                                            <p:column rendered="#{cart.book.campaigns.size() == 0}">
+
+                                                <h:outputText
+                                                        value="#{cart.book.price * cart.book_count}"
+                                                        style="font-size: 1.5em;font-weight: bold;color: #E82D60">
+                                                    <f:convertNumber type="currency" locale="en_US"/>
+                                                </h:outputText>
+
+                                            </p:column>
+
+
+                                            <p:column>
+
+                                            </p:column>
+
+                                            <p:commandLink value="Remove"
+                                                           update=":cartForm :checkoutForm"
+                                                           onstart="PF('blockUIWidget').block()"
+                                                           oncomplete="PF('blockUIWidget').unblock()"
+                                                           style="font-size: 1.5em"
+                                                           action="#{shoppingBasketController.remove(cart.book)}">
+                                                <p:ajax update=":cartForm"/>
+                                            </p:commandLink>
+
+                                        </p:panelGrid>
+
+                                    </p:panelGrid>
+
+                                    <p:separator/>
+
+                                </p:dataViewListItem>
+
+                            </p:dataView>
+
+                            <div class="ui-g-offset-8 ui-g-2">
+                                <h:outputText value="Delivery Cost: " style="font-size: 1.5em;font-weight: bold;"/>
+                            </div>
+
+                            <div class="ui-g-2">
+                                <p:column rendered="#{shoppingBasketController.freeShipping}">
+                                    <h:outputText value="FREE" style="font-size: 1.5em;font-weight: bold;color: #E82D60;"/>
+                                </p:column>
+
+                                <p:column rendered="#{!shoppingBasketController.freeShipping}">
+                                    <h:outputText value="-" style="font-size: 1.5em;font-weight: bold;"/>
+                                </p:column>
+                            </div>
+
+                            <div class="ui-g-offset-8 ui-g-2">
+                                <h:outputText value="Total: " style="font-weight: bold;font-size: 2em"/>
+                            </div>
+
+                            <div class="ui-g-2">
+                                <h:outputText value="#{shoppingBasketController.basketCost}"
+                                              style="font-weight: bold;color: #E82D60;font-size: 2em">
+                                    <f:convertNumber type="currency" locale="en_US"/>
+                                </h:outputText>
+                            </div>
+
+                            <div class="ui-g-6">
+                                <p:graphicImage url="/images/payment.png" style="width: 50%"/>
+                            </div>
+
+                            <div class="ui-g-offset-2 ui-g-2 ui-g-offset-2">
+                                <p:linkButton value="Select Cargo"
+                                              href="/customer/cargoselection.xhtml"
+                                              style="font-size: 2vh;width: 100%"/>
+                            </div>
+
+                        </h:form>
+                    </p:outputPanel>
+
+                </div>
+
+                <div class="ui-g-2">
+
+                </div>
+
+            </div>
+
+            <ui:insert name="footer">
+                <ui:include src="/template/common/footer.xhtml"/>
+            </ui:insert>
+        </p:outputPanel>
+    </h:body>
+</f:view>
+</html>

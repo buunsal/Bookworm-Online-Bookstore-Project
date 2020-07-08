@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pe="http://primefaces.org/ui/extensions"
+      lang="en">
+
+<f:view contentType="text/html" locale="en">
+    <pe:head title="Book Management">
+        <f:facet name="first">
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        </f:facet>
+        <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/css/main.css"/>
+        <h:outputStylesheet name="primeicons/primeicons.css" library="primefaces"/>
+        <style>
+            body {
+                background-image: url("#{resource['images/background.jpg']}") !important;
+                background-size: cover;
+                background-attachment: fixed;
+                background-position: center center;
+            }
+
+            .ui-datatable .ui-datatable-header {
+                text-align: right;
+            }
+        </style>
+    </pe:head>
+    <h:body>
+        <p:outputPanel>
+            <ui:insert name="header">
+                <ui:include src="/template/admin/header.xhtml"/>
+            </ui:insert>
+            <div class="ui-g" style="min-height: 65vh">
+
+                <div class="ui-g-1"></div>
+
+                <div class="ui-g-10">
+                    <p:panel id="bookManagement" header="Book Management" style="text-align: center;">
+
+                        <p:outputPanel style="text-align: left!important;">
+
+                            <p:commandButton value="Create A New Book" onclick="PF('dlg').show();"
+                                             type="button" icon="fa fa-plus"/>
+
+                            <p:spacer width="10"/>
+
+                            <p:commandButton value="New Campaign" onclick="PF('campaignDlg').show();"
+                                             type="button" icon="fa fa-plus"/>
+
+                            <p:spacer width="10"/>
+
+                            <p:commandButton value="End Campaign" onclick="PF('endCampaignDlg').show();"
+                                             type="button" icon="fa fa-times"/>
+                        </p:outputPanel>
+
+                        <br/>
+
+                        <p:outputPanel>
+
+                            <p:blockUI block=":books" trigger=":books:bookList:deleteButton"/>
+                            <p:blockUI block=":books" trigger=":add:addButton"/>
+                            <p:blockUI block=":books" trigger=":update:saveButton"/>
+
+                            <h:form id="books">
+                                <p:growl id="growl" showDetail="true" life="2000"/>
+
+                                <p:dataTable id="bookList"
+                                             var="book"
+                                             value="#{bookController.books}"
+                                             rows="10"
+                                             paginator="true"
+                                             widgetVar="bookTable"
+                                             globalFilterFunction="#{bookController.globalFilterFunction}"
+                                             filteredValue="#{bookController.filteredBooks}"
+                                             rowKey="#{book.ISBN}">
+
+                                    <f:facet name="header">
+                                        <p:outputPanel>
+                                            <h:outputText value="Search all fields:   "/>
+                                            <p:inputText id="globalFilter"
+                                                         onkeyup="PF('bookTable').filter()"
+                                                         style="width:150px"
+                                                         placeholder="Enter keyword"/>
+                                        </p:outputPanel>
+                                    </f:facet>
+
+                                    <p:column style="width:16px">
+                                        <p:rowToggler/>
+                                    </p:column>
+
+                                    <p:column sortBy="#{book.ISBN}" headerText="ISBN" colspan="2">
+                                        <h:outputText value="#{book.ISBN}" style="font-weight: bold"/>
+                                    </p:column>
+
+                                    <p:column sortBy="#{book.title}" headerText="Book Title" colspan="7">
+                                        <h:outputText id="titleOutput" value="#{book.title}" style="font-weight: bold"/>
+                                        <p:tooltip id="titleFade" for="titleOutput"
+                                                   value="#{book.title}" position="top"/>
+                                    </p:column>
+
+                                    <p:rowExpansion>
+                                        <p:panelGrid columns="2" columnClasses="label,value">
+                                            <p:column>
+                                                <p:graphicImage url="#{book.picture}"/>
+                                            </p:column>
+
+                                            <p:panelGrid columns="2" columnClasses="label,value"
+                                                         styleClass="ui-noborder" style="text-align: left;">
+                                                <h:outputText value="ISBN:" style="font-weight: bold"/>
+                                                <h:outputText value="#{book.ISBN}"/>
+
+                                                <h:outputText value="Title:" style="font-weight: bold"/>
+                                                <h:outputText value="#{book.title}"/>
+
+                                                <h:outputText value="Authors:" style="font-weight: bold"/>
+                                                <ui:repeat var="author" value="#{book.authors}" varStatus="status">
+                                                    <h:outputText value="#{author.name}, "/>
+                                                </ui:repeat>
+
+                                                <h:outputText value="Publishers:" style="font-weight: bold"/>
+                                                <ui:repeat var="publisher" value="#{book.publishers}"
+                                                           varStatus="status">
+                                                    <h:outputText value="#{publisher.name}, "/>
+                                                </ui:repeat>
+
+                                                <h:outputText value="Categories:" style="font-weight: bold"/>
+                                                <ui:repeat var="category" value="#{book.categories}" varStatus="status">
+                                                    <h:outputText value="#{category.name}, "/>
+                                                </ui:repeat>
+
+                                                <h:outputText value="Publication date:" style="font-weight: bold"/>
+                                                <h:outputText value="#{book.year}">
+                                                    <f:convertDateTime pattern="dd.MM.yyyy"/>
+                                                </h:outputText>
+
+                                                <h:outputText value="Price:" style="font-weight: bold"/>
+                                                <h:outputText value="$#{book.price}"/>
+
+                                                <h:outputText value="Stock:" style="font-weight: bold"/>
+                                                <h:outputText value="#{book.stock}"/>
+
+                                                <h:outputText value="Bestseller:" style="font-weight: bold"/>
+                                                <p:selectBooleanCheckbox value="#{book.bestseller}" disabled="true"/>
+
+                                                <h:outputText value="Editor Pick:" style="font-weight: bold"/>
+                                                <p:selectBooleanCheckbox value="#{book.editorspicks}" disabled="true"/>
+                                            </p:panelGrid>
+
+                                        </p:panelGrid>
+                                    </p:rowExpansion>
+
+                                    <p:column style="text-align: center" headerText="Action" colspan="3">
+                                        <p:commandButton update=":update" oncomplete="PF('dlg2').show()"
+                                                         id="updateButton" value="Update" icon="fa fa-edit">
+                                            <f:setPropertyActionListener value="#{book}"
+                                                                         target="#{bookController.selectedBook}"/>
+                                        </p:commandButton>
+
+                                        <p:spacer width="10"/>
+
+                                        <p:commandButton update=":books" value="Delete"
+                                                         id="deleteButton"
+                                                         icon="fa fa-trash"
+                                                         action="#{bookController.delete(book)}">
+                                            <p:confirm header="Confirmation" message="Are you sure?"
+                                                       icon="fa fa-alert"/>
+                                        </p:commandButton>
+
+                                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade"
+                                                         closable="false" responsive="true">
+                                            <p:commandButton value="Yes" type="button"
+                                                             styleClass="ui-confirmdialog-yes"
+                                                             icon="fa fa-check"/>
+                                            <p:commandButton value="No" type="button"
+                                                             styleClass="ui-confirmdialog-no"
+                                                             icon="fa fa-times"/>
+                                        </p:confirmDialog>
+                                    </p:column>
+
+                                </p:dataTable>
+
+                            </h:form>
+
+                            <h:form id="campaigns">
+                                <p:dialog header="Select Campaign"
+                                          style="text-align: left"
+                                          widgetVar="campaignDlg"
+                                          modal="true"
+                                          draggable="false"
+                                          resizable="false"
+                                          responsive="true">
+
+                                    <h:panelGrid id="campaignPanel" columns="3">
+
+                                        <h:outputLabel for="book" value="Book:"/>
+                                        <p:selectCheckboxMenu id="book" style="width: 100%"
+                                                              dynamic="true"
+                                                              required="true"
+                                                              requiredMessage="This field must be filled!"
+                                                              value="#{bookController.selectedBooks}"
+                                                              label="Select Books" filter="true"
+                                                              filterMatchMode="contains">
+                                            <f:selectItems value="#{bookController.books}" var="book"
+                                                           itemLabel="#{book.title}"
+                                                           itemValue="#{book}"/>
+                                        </p:selectCheckboxMenu>
+                                        <p:message for="book"/>
+
+                                        <h:outputLabel for="campaign" value="Campaign:"/>
+                                        <p:selectOneMenu id="campaign" style="width: 100%"
+                                                         converter="omnifaces.SelectItemsConverter"
+                                                         dynamic="true"
+                                                         value="#{bookController.selectedCampaign}"
+                                                         label="Select Campaign" filter="true"
+                                                         filterMatchMode="startsWith">
+                                            <f:selectItems value="#{bookController.campaigns}" var="campaign"
+                                                           itemLabel="#{campaign.name}" itemValue="#{campaign}"/>
+                                        </p:selectOneMenu>
+                                        <p:message for="campaign"/>
+
+
+                                        <f:facet name="footer">
+                                            <p:commandButton update=":campaigns :books" validateClient="true"
+                                                             id="campaignButton"
+                                                             value="Save" icon="fa fa-save"
+                                                             actionListener="#{bookController.newCampaign}"/>
+                                        </f:facet>
+
+                                    </h:panelGrid>
+                                </p:dialog>
+                            </h:form>
+
+                            <h:form id="endCampaign">
+                                <p:dialog header="Select Campaign" style="text-align: left"
+                                          widgetVar="endCampaignDlg"
+                                          modal="true"
+                                          draggable="false"
+                                          resizable="false"
+                                          responsive="true">
+
+                                    <h:panelGrid id="endCampaignPanel" columns="3">
+
+                                        <h:outputLabel for="endBook" value="Book:"/>
+                                        <p:selectCheckboxMenu id="endBook" style="width: 100%"
+                                                              dynamic="true"
+                                                              required="true"
+                                                              requiredMessage="This field must be filled!"
+                                                              value="#{bookController.selectedBooks}"
+                                                              label="Select Books" filter="true"
+                                                              filterMatchMode="contains">
+                                            <f:selectItems value="#{bookController.books}" var="book"
+                                                           itemLabel="#{book.title}"
+                                                           itemValue="#{book}"/>
+                                        </p:selectCheckboxMenu>
+                                        <p:message for="endBook"/>
+
+                                        <f:facet name="footer">
+                                            <p:commandButton update=":endCampaign :books" validateClient="true"
+                                                             id="endCampaignButton"
+                                                             value="End Campaign" icon="fa fa-save"
+                                                             actionListener="#{bookController.endCampaign}"/>
+                                        </f:facet>
+
+                                    </h:panelGrid>
+                                </p:dialog>
+                            </h:form>
+
+                            <h:form id="add">
+                                <p:dialog header="Create Book" style="text-align: left"
+                                          widgetVar="dlg"
+                                          modal="true"
+                                          draggable="false"
+                                          resizable="false"
+                                          responsive="true">
+
+                                    <h:panelGrid id="createPanel" columns="3">
+
+                                        <p:outputLabel for="ISBN" value="ISBN"/>
+                                        <p:inputText id="ISBN"
+                                                     required="true"
+                                                     requiredMessage="This field must be filled!"
+                                                     value="#{bookController.book.ISBN}"/>
+                                        <p:message for="ISBN"/>
+
+                                        <p:outputLabel for="title" value="Title"/>
+                                        <p:inputText id="title"
+                                                     required="true"
+                                                     requiredMessage="This field must be filled!"
+                                                     value="#{bookController.book.title}">
+                                        </p:inputText>
+                                        <p:message for="title"/>
+
+                                        <p:outputLabel for="summary" value="Summary"/>
+                                        <p:inputText id="summary"
+                                                     required="true"
+                                                     requiredMessage="This field must be filled!"
+                                                     value="#{bookController.book.summary}">
+                                        </p:inputText>
+                                        <p:message for="summary"/>
+
+                                        <h:outputLabel for="author" value="Author:"/>
+                                        <p:selectCheckboxMenu id="author" style="width: 100%"
+                                                              dynamic="true"
+                                                              required="true"
+                                                              requiredMessage="This field must be filled!"
+                                                              value="#{bookController.book.authors}"
+                                                              label="Select Author" filter="true"
+                                                              filterMatchMode="startsWith">
+                                            <f:selectItems value="#{bookController.authors}" var="author"
+                                                           itemLabel="#{author.name}"
+                                                           itemValue="#{author}"/>
+                                        </p:selectCheckboxMenu>
+                                        <p:message for="author"/>
+
+                                        <h:outputLabel for="publisher" value="Publisher:"/>
+                                        <p:selectCheckboxMenu id="publisher" style="width: 100%"
+                                                              dynamic="true"
+                                                              required="true"
+                                                              requiredMessage="This field must be filled!"
+                                                              value="#{bookController.book.publishers}"
+                                                              label="Select Publisher" filter="true"
+                                                              filterMatchMode="startsWith">
+                                            <f:selectItems value="#{bookController.publishers}" var="publisher"
+                                                           itemLabel="#{publisher.name}"
+                                                           itemValue="#{publisher}"/>
+                                        </p:selectCheckboxMenu>
+                                        <p:message for="publisher"/>
+
+
+                                        <h:outputLabel for="category" value="Category:"/>
+                                        <p:selectCheckboxMenu id="category" style="width: 100%"
+                                                              dynamic="true"
+                                                              required="true"
+                                                              requiredMessage="This field must be filled!"
+                                                              value="#{bookController.book.categories}"
+                                                              label="Select Category" filter="true"
+                                                              filterMatchMode="startsWith">
+                                            <f:selectItems value="#{bookController.categories}" var="category"
+                                                           itemLabel="#{category.name}"
+                                                           itemValue="#{category}"/>
+                                        </p:selectCheckboxMenu>
+                                        <p:message for="category"/>
+
+                                        <p:outputLabel for="year" value="Publication Date"/>
+                                        <p:calendar required="true" yearRange="c-70:c"
+                                                    requiredMessage="This field must be filled!"
+                                                    id="year"
+                                                    value="#{bookController.book.year}"
+                                                    navigator="true"/>
+                                        <p:message for="year"/>
+
+                                        <p:outputLabel for="picture" value="Picture URL"/>
+                                        <p:inputText id="picture"
+                                                     required="true"
+                                                     requiredMessage="This field must be filled!"
+                                                     value="#{bookController.book.picture}"/>
+                                        <p:message for="picture"/>
+
+                                        <p:outputLabel for="price" value="Price"/>
+                                        <p:inputText id="price" required="true"
+                                                     requiredMessage="This field must be filled!"
+                                                     value="#{bookController.book.price}">
+                                        </p:inputText>
+                                        <p:message for="price"/>
+
+                                        <p:outputLabel for="stock" value="Stock"/>
+                                        <p:inputText id="stock" value="#{bookController.book.stock}">
+                                        </p:inputText>
+                                        <p:message for="stock"/>
+
+                                        <p:outputLabel value="Bestseller"/>
+                                        <p:selectBooleanCheckbox value="#{bookController.book.bestseller}"/>
+
+                                        <f:facet name="footer">
+                                            <p:commandButton update=":add :books" validateClient="true"
+                                                             id="addButton"
+                                                             value="Save" icon="fa fa-save"
+                                                             actionListener="#{bookController.add}"/>
+                                        </f:facet>
+
+                                    </h:panelGrid>
+                                </p:dialog>
+                            </h:form>
+
+                            <h:form id="update">
+                                <p:dialog header="Update Book"
+                                          widgetVar="dlg2"
+                                          modal="true"
+                                          draggable="false"
+                                          resizable="false"
+                                          responsive="true"
+                                          style="text-align: left">
+
+                                    <h:panelGrid id="updatePanel" columns="3" style="width:100%;">
+
+                                        <p:outputLabel for="titleupdate" value="Title"/>
+                                        <p:inputText id="titleupdate"
+                                                     required="true"
+                                                     requiredMessage="This field must be filled!"
+                                                     value="#{bookController.selectedBook.title}">
+                                        </p:inputText>
+                                        <p:message for="titleupdate"/>
+
+                                        <p:outputLabel for="summaryupdate" value="Summary"/>
+                                        <p:inputText id="summaryupdate"
+                                                     required="true"
+                                                     requiredMessage="This field must be filled!"
+                                                     value="#{bookController.selectedBook.summary}">
+                                        </p:inputText>
+                                        <p:message for="summaryupdate"/>
+
+                                        <h:outputLabel for="authorupdate" value="Author:"/>
+                                        <p:selectCheckboxMenu id="authorupdate" style="width: 100%"
+                                                              dynamic="true"
+                                                              value="#{bookController.selectedBook.authors}"
+                                                              label="Select Author" filter="true"
+                                                              filterMatchMode="startsWith">
+                                            <f:selectItems value="#{bookController.authors}" var="author"
+                                                           itemLabel="#{author.name}"
+                                                           itemValue="#{author}"/>
+                                            <f:attribute name="collectionType" value="java.util.LinkedHashSet"/>
+                                        </p:selectCheckboxMenu>
+                                        <p:message for="authorupdate"/>
+
+                                        <h:outputLabel for="publisherupdate" value="Publisher:"/>
+                                        <p:selectCheckboxMenu id="publisherupdate" style="width: 100%"
+                                                              dynamic="true"
+                                                              value="#{bookController.selectedBook.publishers}"
+                                                              label="Select Publisher" filter="true"
+                                                              filterMatchMode="startsWith">
+                                            <f:selectItems value="#{bookController.publishers}" var="publisher"
+                                                           itemLabel="#{publisher.name}"
+                                                           itemValue="#{publisher}"/>
+                                            <f:attribute name="collectionType" value="java.util.LinkedHashSet"/>
+                                        </p:selectCheckboxMenu>
+                                        <p:message for="publisherupdate"/>
+
+                                        <h:outputLabel for="categoryupdate" value="Category:"/>
+                                        <p:selectCheckboxMenu id="categoryupdate" style="width: 100%"
+                                                              dynamic="true"
+                                                              value="#{bookController.selectedBook.categories}"
+                                                              label="Select Category" filter="true"
+                                                              filterMatchMode="startsWith">
+                                            <f:selectItems value="#{bookController.categories}" var="category"
+                                                           itemLabel="#{category.name}"
+                                                           itemValue="#{category}"/>
+                                            <f:attribute name="collectionType" value="java.util.LinkedHashSet"/>
+                                        </p:selectCheckboxMenu>
+                                        <p:message for="categoryupdate"/>
+
+                                        <p:outputLabel for="yearupdate" value="Publication Date"/>
+                                        <p:calendar required="true" yearRange="c-70:c"
+                                                    requiredMessage="This field must be filled!"
+                                                    id="yearupdate"
+                                                    value="#{bookController.selectedBook.year}"
+                                                    navigator="true"/>
+                                        <p:message for="yearupdate"/>
+
+                                        <p:outputLabel for="pictureupdate" value="Picture URL"/>
+                                        <p:inputText id="pictureupdate"
+                                                     required="true"
+                                                     requiredMessage="This field must be filled!"
+                                                     value="#{bookController.selectedBook.picture}"/>
+                                        <p:message for="pictureupdate"/>
+
+                                        <p:outputLabel for="priceupdate" value="Price"/>
+                                        <p:inputText id="priceupdate" required="true"
+                                                     requiredMessage="This field must be filled!"
+                                                     value="#{bookController.selectedBook.price}">
+                                        </p:inputText>
+                                        <p:message for="priceupdate"/>
+
+                                        <p:outputLabel for="stockupdate" value="Stock"/>
+                                        <p:inputText id="stockupdate" value="#{bookController.selectedBook.stock}">
+                                        </p:inputText>
+                                        <p:message for="stockupdate"/>
+
+                                        <p:outputLabel value="Bestseller"/>
+                                        <p:selectBooleanCheckbox id="BestSellerUpdate"
+                                                                 value="#{bookController.selectedBook.bestseller}"/>
+                                        <p:message for="BestSellerUpdate"/>
+
+                                        <p:outputLabel value="Editor Pick"/>
+                                        <p:selectBooleanCheckbox id="EditorsPicksUpdate"
+                                                                 value="#{bookController.selectedBook.editorspicks}"/>
+                                        <p:message for="EditorsPicksUpdate"/>
+
+                                        <f:facet name="footer">
+                                            <p:commandButton update=":books" validateClient="true"
+                                                             id="saveButton" value="Save"
+                                                             actionListener="#{bookController.update()}"
+                                                             icon="fa fa-save">
+                                                <f:ajax execute="@form" render="@form"/>
+                                            </p:commandButton>
+                                        </f:facet>
+
+                                    </h:panelGrid>
+                                </p:dialog>
+                            </h:form>
+
+                        </p:outputPanel>
+
+                        <br/>
+
+                    </p:panel>
+                </div>
+
+                <div class="ui-g-1"></div>
+
+            </div>
+
+            <ui:insert name="footer">
+                <ui:include src="/template/admin/footer.xhtml"/>
+            </ui:insert>
+        </p:outputPanel>
+    </h:body>
+</f:view>
+</html>

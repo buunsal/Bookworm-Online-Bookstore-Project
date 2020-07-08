@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pe="http://primefaces.org/ui/extensions"
+      lang="en">
+<f:view contentType="text/html" locale="en">
+    <pe:head title="Bookworm Online Bookstore">
+        <f:facet name="first">
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        </f:facet>
+        <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/css/main.css"/>
+        <h:outputStylesheet name="primeicons/primeicons.css" library="primefaces"/>
+        <style>
+            body {
+                background-image: url("#{resource['images/background.jpg']}") !important;
+                background-size: cover;
+                background-attachment: fixed;
+                background-position: center center;
+            }
+        </style>
+    </pe:head>
+    <h:body>
+        <p:outputPanel>
+            <ui:insert name="header">
+                <ui:include src="/template/common/header.xhtml"/>
+            </ui:insert>
+
+            <div class="ui-g" style="min-height: 65vh">
+
+                <div class="ui-g-2" style="
+                background-image: url('#{resource['images/left_pane.png']}') !important;
+                background-size: contain;
+                background-attachment: fixed;
+                background-position: center center;">
+                </div>
+
+                <div class="ui-g-8">
+
+                    <div class="ui-g-12"
+                         style="text-align: center;
+                         background-color: #E82D60;
+                         border-radius: 10px 10px 10px 10px">
+
+                        <h1 style="color:white">Books By</h1>
+                        <h2 style="color:white">#{categoryPageController.category.name}</h2>
+
+                    </div>
+
+                    <p:spacer height="20"/>
+
+                    <h:form id="bookShowAreaForm">
+
+                        <p:dataGrid id="books"
+                                    layout="grid"
+                                    value="#{categoryPageController.books}"
+                                    var="book"
+                                    columns="3"
+                                    rows="12"
+                                    paginator="true"
+                                    paginatorPosition="bottom"
+                                    paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}">
+
+                            <p:fieldset style="text-align: center!important;">
+
+                                <p:panelGrid columns="1" layout="grid" styleClass="ui-panelgrid-blank">
+
+                                    <h:link outcome="/viewbook.xhtml?isbn=#{book.ISBN}">
+                                        <p:graphicImage url="#{book.picture}" style="width: 12vw;height: 18vw;"
+                                                        title="#{book.title}"/>
+                                    </h:link>
+
+                                    <h:link outcome="/viewbook.xhtml?isbn=#{book.ISBN}">
+                                        <div style="font-weight:bold;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;"
+                                             title="#{book.title}">
+                                            #{book.title}
+                                        </div>
+                                    </h:link>
+
+                                    <p:column rendered="#{book.campaigns.size() != 0}">
+
+                                        <h:outputText
+                                                value="#{book.getPrice() / 100 * (100 - book.getCampaigns().iterator().next().getDiscount_amount())}"
+                                                style="font-size: 2em;font-weight: bold;color: #E82D60">
+                                            <f:convertNumber type="currency" locale="en_US"/>
+                                        </h:outputText>
+
+                                        <del style="font-size: 1.5em">
+                                            $#{book.price}
+                                        </del>
+
+                                        <br/>
+
+                                        Save
+
+                                        <h:outputText
+                                                value="#{book.getPrice() / 100 * (book.getCampaigns().iterator().next().getDiscount_amount())}"
+                                                style="font-style: italic; font-size: 1em;">
+                                            <f:convertNumber type="currency" locale="en_US"/>
+                                        </h:outputText>
+
+                                    </p:column>
+
+                                    <p:column rendered="#{book.campaigns.size() == 0}">
+
+                                        <div style="color: #E82D60;font-size: 2em;font-weight:bold;">
+                                            $#{book.price}
+                                        </div>
+
+                                        <br/>
+
+                                    </p:column>
+
+                                    <p:column rendered="#{book.stock == 0}">
+                                        <p:commandButton value="Out Of Stock"
+                                                         style="font-size: 1em;"
+                                                         disabled="true"
+                                                         action="/signin.xhtml"/>
+                                    </p:column>
+
+                                    <p:column rendered="#{!sessionController.isLogged and book.stock != 0}">
+                                        <p:commandButton value="Add to Cart"
+                                                         style="font-size: 1em;"
+                                                         action="/signin.xhtml"/>
+                                    </p:column>
+
+                                    <p:column rendered="#{sessionController.isLogged and book.stock != 0}">
+                                        <p:commandButton value="Add to Cart"
+                                                         onstart="PF('blockUIWidget').block()"
+                                                         oncomplete="PF('blockUIWidget').unblock()"
+                                                         style="font-size: 1em;"
+                                                         update=":cartForm :bookShowAreaForm"
+                                                         action="#{shoppingBasketController.AddToCart(book)}"
+                                                         rendered="#{!shoppingBasketController.addedButton(book)}"/>
+
+                                        <p:commandButton value="Added"
+                                                         style="font-size: 1em;"
+                                                         disabled="true"
+                                                         rendered="#{shoppingBasketController.addedButton(book)}"/>
+                                    </p:column>
+
+                                </p:panelGrid>
+
+                            </p:fieldset>
+
+                        </p:dataGrid>
+
+                        <pe:blockUI widgetVar="blockUIWidget" css="{backgroundColor: 'white'}"
+                                    cssOverlay="{opacity:0.5}" showOverlay="true">
+                            <p:outputPanel style="background-color: white">
+                                <h:panelGrid columns="2" styleClass="ql-color-white" style="background-color: white">
+                                    <h:graphicImage library="images" name="loader.gif"
+                                                    style="vertical-align: middle;"/>
+                                    <h:outputText value="Please wait..."
+                                                  style="white-space: nowrap;color: #007AD9;font-size: xx-large"/>
+                                </h:panelGrid>
+                            </p:outputPanel>
+                        </pe:blockUI>
+
+                    </h:form>
+
+                </div>
+
+                <div class="ui-g-2" style="
+                background-image: url('#{resource['images/right_pane.png']}') !important;
+                background-size: contain;
+                background-attachment: fixed;
+                background-position: center center;">
+                </div>
+
+            </div>
+
+            <ui:insert name="footer">
+                <ui:include src="/template/common/footer.xhtml"/>
+            </ui:insert>
+        </p:outputPanel>
+    </h:body>
+</f:view>
+</html>

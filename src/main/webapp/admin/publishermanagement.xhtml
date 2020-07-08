@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pe="http://primefaces.org/ui/extensions"
+      lang="en">
+
+<f:view contentType="text/html" locale="en">
+    <pe:head title="Publisher Management">
+        <f:facet name="first">
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        </f:facet>
+        <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/css/main.css"/>
+        <h:outputStylesheet name="primeicons/primeicons.css" library="primefaces"/>
+        <style>
+            body {
+                background-image: url("#{resource['images/background.jpg']}") !important;
+                background-size: cover;
+                background-attachment: fixed;
+                background-position: center center;
+            }
+
+            .ui-datatable .ui-datatable-header {
+                text-align: right;
+            }
+        </style>
+    </pe:head>
+    <h:body>
+        <p:outputPanel>
+            <ui:insert name="header">
+                <ui:include src="/template/admin/header.xhtml"/>
+            </ui:insert>
+            <div class="ui-g" style="min-height: 65vh">
+
+                <div class="ui-g-1"></div>
+
+                <div class="ui-g-10">
+                    <p:panel id="publisherManagement" header="Publisher Management" style="text-align: center;">
+
+                        <p:outputPanel style="text-align: left!important;">
+
+                            <p:commandButton value="Create a New Publisher" onclick="PF('dlg').show();"
+                                             type="button" icon="fa fa-plus"/>
+
+                        </p:outputPanel>
+
+                        <br/>
+
+                        <p:outputPanel>
+
+                            <p:blockUI block=":publishers" trigger=":publishers:publisherList:deleteButton"/>
+                            <p:blockUI block=":publishers" trigger=":add:addButton"/>
+                            <p:blockUI block=":publishers" trigger=":update:saveButton"/>
+
+                            <h:form id="publishers">
+                                <p:growl id="growl" showDetail="true" life="2000"/>
+
+                                <p:dataTable id="publisherList"
+                                             var="publisher"
+                                             value="#{publisherController.publishers}"
+                                             rows="10"
+                                             paginator="true"
+                                             widgetVar="publisherTable"
+                                             filteredValue="#{publisherController.filteredPublishers}"
+                                             globalFilterFunction="#{publisherController.globalFilterFunction}"
+                                             rowKey="#{publisher.id}">
+
+                                    <f:facet name="header">
+                                        <p:outputPanel>
+                                            <h:outputText value="Search all fields:  "/>
+                                            <p:inputText id="globalFilter"
+                                                         onkeyup="PF('publisherTable').filter()"
+                                                         style="width:150px"
+                                                         placeholder="Enter keyword"/>
+                                        </p:outputPanel>
+                                    </f:facet>
+
+                                    <p:column sortBy="#{publisher.id}" headerText="ID" colspan="1">
+                                        <p:outputLabel value="#{publisher.id}"/>
+                                    </p:column>
+
+                                    <p:column sortBy="#{publisher.name}" headerText="Name" colspan="4">
+                                        <p:outputLabel id="nameOutput" value="#{publisher.name}"/>
+                                        <p:tooltip id="nameFade" for="nameOutput"
+                                                   value="#{publisher.name}" position="top"/>
+                                    </p:column>
+
+                                    <p:column sortBy="#{publisher.address}" headerText="Address" colspan="4">
+                                        <p:outputLabel id="addressOutput" value="#{publisher.address}"/>
+                                        <p:tooltip id="addressFade" for="addressOutput"
+                                                   value="#{publisher.address}" position="top"/>
+                                    </p:column>
+
+                                    <p:column sortBy="#{publisher.phoneNumber}" headerText="Phone Number" colspan="4">
+                                        <p:outputLabel id="phoneNumberOutput" value="#{publisher.phoneNumber}"/>
+                                        <p:tooltip id="phoneNumberFade" for="phoneNumberOutput"
+                                                   value="#{publisher.phoneNumber}" position="top"/>
+                                    </p:column>
+
+                                    <p:column sortBy="#{publisher.url}" headerText="Url" colspan="4">
+                                        <p:outputLabel id="urlOutput" value="#{publisher.url}"/>
+                                        <p:tooltip id="urlFade" for="urlOutput"
+                                                   value="#{publisher.url}" position="top"/>
+                                    </p:column>
+
+                                    <p:column style="text-align: center" headerText="Action" colspan="3">
+                                        <p:commandButton update=":update" oncomplete="PF('dlg2').show()"
+                                                         id="updateButton" value="Update" icon="fa fa-edit">
+                                            <f:setPropertyActionListener value="#{publisher}"
+                                                                         target="#{publisherController.selectedPublisher}"/>
+                                        </p:commandButton>
+
+                                        <p:spacer width="10"/>
+
+                                        <p:commandButton update=":publishers" value="Delete"
+                                                         icon="fa fa-trash" id="deleteButton"
+                                                         action="#{publisherController.delete(publisher)}">
+                                            <p:confirm header="Confirmation" message="Are you sure?"
+                                                       icon="fa fa-alert"/>
+                                        </p:commandButton>
+
+                                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade"
+                                                         closable="false" responsive="true">
+                                            <p:commandButton value="Yes" type="button"
+                                                             styleClass="ui-confirmdialog-yes"
+                                                             icon="fa fa-check"/>
+                                            <p:commandButton value="No" type="button"
+                                                             styleClass="ui-confirmdialog-no"
+                                                             icon="fa fa-times"/>
+                                        </p:confirmDialog>
+                                    </p:column>
+                                </p:dataTable>
+
+                            </h:form>
+
+                            <h:form id="add">
+                                <p:dialog header="Create a New Publisher"
+                                          widgetVar="dlg"
+                                          modal="true"
+                                          draggable="false"
+                                          resizable="false"
+                                          responsive="true">
+
+                                    <h:panelGrid id="createPanel" columns="3">
+
+                                        <p:outputLabel for="name" value="Name"/>
+                                        <p:inputText id="name"
+                                                     required="true"
+                                                     requiredMessage="This field must be filled!"
+                                                     value="#{publisherController.publisher.name}">
+                                        </p:inputText>
+                                        <p:message for="name"/>
+
+                                        <p:outputLabel for="address" value="Address"/>
+                                        <p:inputText id="address"
+                                                     required="true"
+                                                     requiredMessage="This field must be filled!"
+                                                     value="#{publisherController.publisher.address}">
+                                        </p:inputText>
+                                        <p:message for="address"/>
+
+                                        <p:outputLabel for="phoneNumber" value="Phone Number"/>
+                                        <p:inputText id="phoneNumber" placeholder="None"
+                                                     value="#{publisherController.publisher.phoneNumber}">
+                                        </p:inputText>
+                                        <p:message for="phoneNumber"/>
+
+                                        <p:outputLabel for="url" value="Url"/>
+                                        <p:inputText id="url"
+                                                     required="true"
+                                                     requiredMessage="This field must be filled!"
+                                                     value="#{publisherController.publisher.url}">
+                                        </p:inputText>
+                                        <p:message for="url"/>
+
+                                        <p:column>
+
+                                        </p:column>
+                                        <f:facet name="footer">
+                                            <p:commandButton update=":add :publishers" validateClient="true"
+                                                             value="Save" icon="fa fa-save" id="addButton"
+                                                             actionListener="#{publisherController.add}"/>
+                                        </f:facet>
+
+                                    </h:panelGrid>
+                                </p:dialog>
+                            </h:form>
+
+                            <h:form id="update">
+                                <p:dialog header="Update Publisher"
+                                          widgetVar="dlg2"
+                                          modal="true"
+                                          draggable="false"
+                                          resizable="false"
+                                          responsive="true">
+
+                                    <h:panelGrid id="updatePanel" columns="3"
+                                                 style="width:100%;text-align: center">
+
+                                        <p:outputLabel for="nameupdate" value="Name"/>
+                                        <p:inputText id="nameupdate"
+                                                     required="true"
+                                                     requiredMessage="This field must be filled!"
+                                                     value="#{publisherController.selectedPublisher.name}">
+                                        </p:inputText>
+                                        <p:message for="nameupdate"/>
+
+                                        <p:outputLabel for="addressupdate" value="Address"/>
+                                        <p:inputText id="addressupdate"
+                                                     required="true"
+                                                     requiredMessage="This field must be filled!"
+                                                     value="#{publisherController.selectedPublisher.address}">
+                                        </p:inputText>
+                                        <p:message for="addressupdate"/>
+
+                                        <p:outputLabel for="phoneNumberupdate" value="Phone Number"/>
+                                        <p:inputText id="phoneNumberupdate"
+                                                     required="true"
+                                                     requiredMessage="This field must be filled!"
+                                                     value="#{publisherController.selectedPublisher.phoneNumber}">
+                                        </p:inputText>
+                                        <p:message for="phoneNumberupdate"/>
+
+                                        <p:outputLabel for="urlupdate" value="Url"/>
+                                        <p:inputText id="urlupdate"
+                                                     required="true"
+                                                     requiredMessage="This field must be filled!"
+                                                     value="#{publisherController.selectedPublisher.url}">
+                                        </p:inputText>
+                                        <p:message for="urlupdate"/>
+
+                                        <f:facet name="footer">
+                                            <p:commandButton update=":publishers" validateClient="true"
+                                                             id="saveButton" value="Save" immediate="true"
+                                                             action="#{publisherController.update()}"
+                                                             icon="fa fa-save">
+                                                <f:ajax execute="@form" render="@form"/>
+                                            </p:commandButton>
+                                        </f:facet>
+
+                                    </h:panelGrid>
+                                </p:dialog>
+                            </h:form>
+
+                        </p:outputPanel>
+
+                        <br/>
+
+                    </p:panel>
+                </div>
+
+                <div class="ui-g-1"></div>
+
+            </div>
+
+            <ui:insert name="footer">
+                <ui:include src="/template/admin/footer.xhtml"/>
+            </ui:insert>
+        </p:outputPanel>
+    </h:body>
+</f:view>
+</html>
