@@ -16,9 +16,7 @@
 
 # Using Application
 - Heroku Link: [Bookworm Online Bookstore](http://bookworm-online-bookstore.herokuapp.com)
-Note: Database is no longer active due to high pricing so the heroku application is in maintenance mode.
-
-- There are 2 user types and user panels according to these types. They are: user and admin.
+- Note: Database is no longer active due to high pricing so the heroku application is in maintenance mode.
 
 # Using Database
 ```
@@ -32,8 +30,8 @@ spring.datasource.password=AZURE_DATABASE_PASSWORD
 
 # Running App Locally
 ```
-$ git clone https://github.com/HacettepeUniversityBBM384/bbm384-project-spring2020-baam.git
-$ cd bbm384-project-spring2020-baam
+$ git clone https://github.com/sqores/Bookworm-Online-Bookstore-Project
+$ cd Bookworm-Online-Bookstore-Project
 $
 $ mvn spring-boot:run
 ```
